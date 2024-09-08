@@ -1,0 +1,12 @@
+*.class
+.idea
+target/
+project/project/
+project/.bloop/
+dist/
+
+# ツールによる自動生成系
+.bloop/
+.metals/
+.vscode/
+.bsp
