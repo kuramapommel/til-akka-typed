@@ -1,0 +1,33 @@
+name: CI for sample
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "sample/**"
+      - ".github/workflows/sample.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "sample/**"
+      - ".github/workflows/sample.yml"
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sample
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 8
+      - name: Build and Test
+        run: sbt -v +test
