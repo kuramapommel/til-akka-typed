@@ -1,17 +1,9 @@
 package com.kuramapommel.til_akka_typed.usecase
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ExecutionContext, Future}
 import cats.data.EitherT
-import com.kuramapommel.til_akka_typed.domain.model.{
-  ProductIdGenerator,
-  Product,
-  ProductId,
-  ProductRepository
-}
-import com.kuramapommel.til_akka_typed.domain.model.event.{
-  ProductEvent,
-  Registered
-}
+import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, ProductIdGenerator, ProductRepository}
+import com.kuramapommel.til_akka_typed.domain.model.event.{ProductEvent, Registered}
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 
 class RegisterProductUseCaseImpl(

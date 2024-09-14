@@ -5,15 +5,9 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import com.kuramapommel.til_akka_typed.domain.model.ProductId
-import com.kuramapommel.til_akka_typed.domain.model.event.{
-  ProductEvent,
-  Registered
-}
+import com.kuramapommel.til_akka_typed.domain.model.event.{ProductEvent, Registered}
 
-class ProductActorSpec
-    extends AnyWordSpecLike
-    with BeforeAndAfterAll
-    with Matchers {
+class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Matchers {
   val testKit = ActorTestKit()
   override def afterAll(): Unit = testKit.shutdownTestKit()
 

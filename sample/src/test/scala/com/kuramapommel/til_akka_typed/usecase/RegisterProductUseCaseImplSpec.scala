@@ -4,20 +4,10 @@ import scala.concurrent.Promise
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import com.kuramapommel.til_akka_typed.domain.model.{
-  ProductId,
-  ProductIdGenerator,
-  ProductRepository
-}
-import com.kuramapommel.til_akka_typed.domain.model.event.{
-  ProductEvent,
-  Registered
-}
+import com.kuramapommel.til_akka_typed.domain.model.{ProductId, ProductIdGenerator, ProductRepository}
+import com.kuramapommel.til_akka_typed.domain.model.event.{ProductEvent, Registered}
 
-class RegisterProductUseCaseImplSpec
-    extends ScalaFutures
-    with Matchers
-    with AnyWordSpecLike {
+class RegisterProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWordSpecLike {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   "RegisterProductUseCaseImpl" should {
@@ -42,21 +32,20 @@ class RegisterProductUseCaseImplSpec
         )
       )
       val promise = Promise[ProductEvent]()
-      val result = usecase.execute(name, imageUrl, price, description) {
-        event =>
-          promise.success(event)
+      val result = usecase.execute(name, imageUrl, price, description) { event =>
+        promise.success(event)
       }
 
       whenReady(result.value) {
         case Right(_) =>
           whenReady(promise.future) {
             case Registered(
-                  actualProductId,
-                  actualName,
-                  actualImageUrl,
-                  actualPrice,
-                  actualDescription
-                ) =>
+                   actualProductId,
+                   actualName,
+                   actualImageUrl,
+                   actualPrice,
+                   actualDescription
+                 ) =>
               (
                 actualProductId,
                 actualName,

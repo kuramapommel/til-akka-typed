@@ -1,3 +1,4 @@
 cd sample
 sbt clean reload
+sbt scalafmtAll
 sbt -v +test

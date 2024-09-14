@@ -1,15 +1,10 @@
 package com.kuramapommel.til_akka_typed.adapter.aggregate
 
 import scala.concurrent.Promise
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector}
 import akka.actor.typed.scaladsl.Behaviors
-import com.kuramapommel.til_akka_typed.domain.model.{
-  ProductIdGenerator,
-  ProductId,
-  ProductRepository,
-  Product
-}
+import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, ProductIdGenerator, ProductRepository}
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
 
@@ -22,13 +17,13 @@ object ProductActor {
 
       msg match {
         case Command.Register(
-              id,
-              name,
-              imageUrl,
-              price,
-              description,
-              replyTo
-            ) =>
+               id,
+               name,
+               imageUrl,
+               price,
+               description,
+               replyTo
+             ) =>
           val promise = Promise[Product]()
           val productIdGenerator = ProductIdGenerator(() => ProductId(id))
           val productRepository = ProductRepository(
