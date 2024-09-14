@@ -1,4 +1,5 @@
 cd sample
 sbt clean reload
 sbt scalafmtAll
+git add .
 sbt -v +test
