@@ -6,6 +6,7 @@ import akka.http.scaladsl.server.Route
 
 import scala.concurrent.Future
 import com.kuramapommel.til_akka_typed.UserRegistry._
+import com.kuramapommel.til_akka_typed.UserRegistry.Command._
 import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.AskPattern._
@@ -13,7 +14,7 @@ import akka.util.Timeout
 
 //#import-json-formats
 //#user-routes-class
-class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val system: ActorSystem[_]) {
+class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val system: ActorSystem[?]):
 
   // #user-routes-class
   import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
@@ -37,47 +38,37 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
   // #users-get-post
   // #users-get-delete
   val userRoutes: Route =
-    pathPrefix("users") {
+    pathPrefix("users"):
       concat(
         // #users-get-delete
-        pathEnd {
+        pathEnd:
           concat(
-            get {
+            get:
               complete(getUsers())
-            },
-            post {
-              entity(as[User]) { user =>
-                onSuccess(createUser(user)) { performed =>
+            ,
+            post:
+              entity(as[User]): user =>
+                onSuccess(createUser(user)): performed =>
                   complete((StatusCodes.Created, performed))
-                }
-              }
-            }
           )
-        },
+        ,
         // #users-get-delete
         // #users-get-post
-        path(Segment) { name =>
+        path(Segment): name =>
           concat(
-            get {
+            get:
               // #retrieve-user-info
-              rejectEmptyResponse {
-                onSuccess(getUser(name)) { response =>
+              rejectEmptyResponse:
+                onSuccess(getUser(name)): response =>
                   complete(response.maybeUser)
-                }
-              }
               // #retrieve-user-info
-            },
-            delete {
+            ,
+            delete:
               // #users-delete-logic
-              onSuccess(deleteUser(name)) { performed =>
+              onSuccess(deleteUser(name)): performed =>
                 complete((StatusCodes.OK, performed))
-              }
               // #users-delete-logic
-            }
           )
-        }
       )
       // #users-get-delete
-    }
-  // #all-routes
-}
+// #all-routes

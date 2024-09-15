@@ -4,9 +4,9 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import scala.annotation.showAsInfix
 
-class ProductSpec extends AnyWordSpecLike with Matchers {
-  "Product" should {
-    "プロダクトID, プロダクト名, 画像URL, 価格, 詳細情報によって生成される" in {
+class ProductSpec extends AnyWordSpecLike with Matchers:
+  "Product" should:
+    "プロダクトID, プロダクト名, 画像URL, 価格, 詳細情報によって生成される" in:
       val id = new ProductId("test-id")
       val name = "product1"
       val imageUrl = "https://placehold.jp/123456/abcdef/150x150.png"
@@ -15,6 +15,3 @@ class ProductSpec extends AnyWordSpecLike with Matchers {
 
       val product = Product(id, name, imageUrl, price, description)
       product must be(Product(id, name, imageUrl, price, description))
-    }
-  }
-}

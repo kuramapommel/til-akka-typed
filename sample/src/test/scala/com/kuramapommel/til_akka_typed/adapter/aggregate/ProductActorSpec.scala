@@ -5,14 +5,15 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import com.kuramapommel.til_akka_typed.domain.model.ProductId
-import com.kuramapommel.til_akka_typed.domain.model.event.{ProductEvent, Registered}
+import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 
-class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Matchers {
+class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Matchers:
   val testKit = ActorTestKit()
-  override def afterAll(): Unit = testKit.shutdownTestKit()
+  override def afterAll(): Unit =
+    testKit.shutdownTestKit()
 
-  "ProductActor" should {
-    "プロダクトの登録が成功したとき Registered イベントが発生する" in {
+  "ProductActor" should:
+    "プロダクトの登録が成功したとき Registered イベントが発生する" in:
       val productId = "test-id"
       val actor = testKit.spawn(ProductActor())
       val probe = testKit.createTestProbe[ProductEvent]()
@@ -27,7 +28,7 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
       )
 
       probe.expectMessage(
-        Registered(
+        ProductEvent.Registered(
           ProductId(productId),
           "product1",
           "https://placehold.jp/123456/abcdef/150x150.png",
@@ -35,6 +36,3 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
           "description"
         )
       )
-    }
-  }
-}

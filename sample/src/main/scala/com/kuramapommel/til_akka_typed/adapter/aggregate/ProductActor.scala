@@ -8,14 +8,15 @@ import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, Product
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
 
-object ProductActor {
-  def apply(): Behavior[Command] = active(None)
+object ProductActor:
+  def apply(): Behavior[Command] =
+    active(None)
+
   def active(productOpt: Option[Product]): Behavior[Command] =
-    Behaviors.receive[Command] { (ctx, msg) =>
+    Behaviors.receive[Command]: (ctx, msg) =>
       implicit val executionContext =
         ctx.system.executionContext
-
-      msg match {
+      msg match
         case Command.Register(
                id,
                name,
@@ -28,10 +29,9 @@ object ProductActor {
           val productIdGenerator = ProductIdGenerator(() => ProductId(id))
           val productRepository = ProductRepository(
             id => productOpt.get,
-            guest => {
+            guest =>
               promise.success(guest)
               guest.id
-            }
           )
           val usecase =
             new RegisterProductUseCaseImpl(
@@ -41,31 +41,25 @@ object ProductActor {
 
           ctx.pipeToSelf(
             usecase
-              .execute(name, imageUrl, price, description) { event =>
+              .execute(name, imageUrl, price, description): event =>
                 replyTo ! event
-              }
               .value
-              .flatMap(_ => promise.future)
-          ) {
+              .flatMap: ? =>
+                promise.future
+          ):
             case Success(product)   => Command.Save(product)
             case Failure(exception) => ???
-          }
 
           Behaviors.same
         case Command.Save(product) => active(Some(product))
-      }
-    }
-}
 
-sealed trait Command
-object Command {
-  case class Save(product: Product) extends Command
-  case class Register(
+enum Command:
+  case Save(product: Product)
+  case Register(
       id: String,
       name: String,
       imageUrl: String,
       price: Int,
       description: String,
       replyTo: ActorRef[ProductEvent]
-  ) extends Command
-}
+  )
