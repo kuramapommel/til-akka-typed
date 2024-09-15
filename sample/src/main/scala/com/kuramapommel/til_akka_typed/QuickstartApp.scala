@@ -11,7 +11,7 @@ import scala.util.Success
 //#main-class
 
 // #start-http-server
-def startHttpServer(routes: Route)(implicit system: ActorSystem[_]): Unit =
+def startHttpServer(routes: Route)(implicit system: ActorSystem[?]): Unit =
   // Akka HTTP still needs a classic ActorSystem to start
   import system.executionContext
 

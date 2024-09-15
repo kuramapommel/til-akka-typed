@@ -37,29 +37,9 @@ class RegisterProductUseCaseImplSpec extends ScalaFutures with Matchers with Any
       whenReady(result.value):
         case Right(_) =>
           whenReady(promise.future):
-            case ProductEvent.Registered(
-                   actualProductId,
-                   actualName,
-                   actualImageUrl,
-                   actualPrice,
-                   actualDescription
-                 ) =>
-              (
-                actualProductId,
-                actualName,
-                actualImageUrl,
-                actualPrice,
-                actualDescription,
-                savedId
-              ) must be(
-                (
-                  productId,
-                  name,
-                  imageUrl,
-                  price,
-                  description,
-                  productId
-                )
+            case ProductEvent.Registered(actualProductId, actualName, actualImageUrl, actualPrice, actualDescription) =>
+              (actualProductId, actualName, actualImageUrl, actualPrice, actualDescription, savedId) must be(
+                (productId, name, imageUrl, price, description, productId)
               )
             case _ => fail()
         case Left(_) => fail()

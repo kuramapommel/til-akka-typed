@@ -17,14 +17,7 @@ object ProductActor:
       implicit val executionContext =
         ctx.system.executionContext
       msg match
-        case Command.Register(
-               id,
-               name,
-               imageUrl,
-               price,
-               description,
-               replyTo
-             ) =>
+        case Command.Register(id, name, imageUrl, price, description, replyTo) =>
           val promise = Promise[Product]()
           val productIdGenerator = ProductIdGenerator(() => ProductId(id))
           val productRepository = ProductRepository(
@@ -34,10 +27,7 @@ object ProductActor:
               guest.id
           )
           val usecase =
-            new RegisterProductUseCaseImpl(
-              productIdGenerator,
-              productRepository
-            )
+            new RegisterProductUseCaseImpl(productIdGenerator, productRepository)
 
           ctx.pipeToSelf(
             usecase

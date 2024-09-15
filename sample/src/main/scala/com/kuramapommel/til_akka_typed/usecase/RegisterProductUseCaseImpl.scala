@@ -11,12 +11,7 @@ class RegisterProductUseCaseImpl(
     productRepository: ProductRepository
 ):
 
-  def execute(
-      name: String,
-      imageUrl: String,
-      price: Int,
-      description: String
-  )(
+  def execute(name: String, imageUrl: String, price: Int, description: String)(
       eventPublisher: ProductEvent => Unit
   )(implicit ec: ExecutionContext): EitherT[Future, ProductError, Unit] =
     for
@@ -26,11 +21,5 @@ class RegisterProductUseCaseImpl(
           Product(id, name, imageUrl, price, description)
       savedId <- productRepository.save(product)
     yield eventPublisher(
-      ProductEvent.Registered(
-        savedId,
-        product.name,
-        product.imageUrl,
-        product.price,
-        product.description
-      )
+      ProductEvent.Registered(savedId, product.name, product.imageUrl, product.price, product.description)
     )
