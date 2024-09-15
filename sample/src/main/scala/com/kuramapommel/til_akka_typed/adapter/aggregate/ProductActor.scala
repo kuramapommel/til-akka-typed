@@ -7,6 +7,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, ProductIdGenerator, ProductRepository}
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
+import com.kuramapommel.til_akka_typed.usecase.EditProductUseCase
 
 object ProductActor:
   def apply(): Behavior[Command] =
@@ -18,7 +19,7 @@ object ProductActor:
         ctx.system.executionContext
       msg match
         case Command.Register(id, name, imageUrl, price, description, replyTo) =>
-          val promise = Promise[Product]()
+          val promise = Promise[Product]
           val productIdGenerator = ProductIdGenerator(() => ProductId(id))
           val productRepository = ProductRepository(
             id => productOpt.get,
@@ -39,8 +40,21 @@ object ProductActor:
           ):
             case Success(product)   => Command.Save(product)
             case Failure(exception) => ???
-
           Behaviors.same
+
+        case Command.Edit(id, replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
+          val usecase = new EditProductUseCase {}
+
+          ctx.pipeToSelf(
+            usecase
+              .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
+                replyTo ! event
+              .value
+          ):
+            case Success(_)         => Command.Save(productOpt.get)
+            case Failure(exception) => ???
+          Behaviors.same
+
         case Command.Save(product) => active(Some(product))
 
 enum Command:
@@ -52,4 +66,12 @@ enum Command:
       price: Int,
       description: String,
       replyTo: ActorRef[ProductEvent]
+  )
+  case Edit(
+      id: String,
+      replyTo: ActorRef[ProductEvent],
+      nameOpt: Option[String] = None,
+      imageUrlOpt: Option[String] = None,
+      priceOpt: Option[Int] = None,
+      descriptionOpt: Option[String] = None
   )

@@ -20,6 +20,13 @@ package object model:
   object event:
     enum ProductEvent:
       case Registered(productId: ProductId, name: String, imageUrl: String, price: Int, description: String)
+      case Edited(
+          productId: ProductId,
+          name: Option[String] = None,
+          imageUrl: Option[String] = None,
+          price: Option[Int] = None,
+          description: Option[String] = None
+      )
 
   object error:
     sealed trait ProductError
