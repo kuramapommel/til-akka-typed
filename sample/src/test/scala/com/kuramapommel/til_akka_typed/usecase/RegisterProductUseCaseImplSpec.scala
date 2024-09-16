@@ -31,7 +31,8 @@ class RegisterProductUseCaseImplSpec extends ScalaFutures with Matchers with Any
           savedId = product.id
           EitherT.rightT[Future, ProductError](savedId)
       val usecase = new RegisterProductUseCaseImpl(
-        ProductIdGenerator(() => productId),
+        ProductIdGenerator: () =>
+          productId,
         repository
       )
 

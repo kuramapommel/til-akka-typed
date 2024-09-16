@@ -23,7 +23,11 @@ object ProductActor:
 
       msg match
         case Register(id, name, imageUrl, price, description, replyTo) =>
-          val usecase = RegisterProductUseCaseImpl(ProductIdGenerator(() => ProductId(id)), productRepository)
+          val usecase = RegisterProductUseCaseImpl(
+            ProductIdGenerator: () =>
+              ProductId(id),
+            productRepository
+          )
           usecase
             .execute(name, imageUrl, price, description): event =>
               replyTo ! event
