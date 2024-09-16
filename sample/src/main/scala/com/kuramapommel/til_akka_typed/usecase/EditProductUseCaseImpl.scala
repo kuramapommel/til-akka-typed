@@ -9,19 +9,22 @@ import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 class EditProductUseCaseImpl(
     productRepository: ProductRepository
 ) extends EditProductUseCase:
-  def execute(
-      productId: ProductId,
-      name: Option[String],
-      imageUrl: Option[String],
-      price: Option[Int],
-      description: Option[String]
-  )(eventPublisher: ProductEvent => Unit)(implicit ec: ExecutionContext): EitherT[Future, ProductError, Unit] =
+  override def execute(
+      id: String,
+      nameOpt: Option[String],
+      imageUrlOpt: Option[String],
+      priceOpt: Option[Int],
+      descriptionOpt: Option[String]
+  )(
+      eventPublisher: ProductEvent => Unit
+  )(implicit ec: ExecutionContext): EitherT[Future, ProductError, Unit] =
+    val productId = ProductId(id)
     for
       product <- productRepository
         .findById(productId)
         .map: product =>
-          product.edit(name, imageUrl, price, description)
+          product.edit(nameOpt, imageUrlOpt, priceOpt, descriptionOpt)
       savedId <- productRepository.save(product)
     yield eventPublisher(
-      ProductEvent.Edited(savedId, name, imageUrl, price, description)
+      ProductEvent.Edited(savedId, nameOpt, imageUrlOpt, priceOpt, descriptionOpt)
     )

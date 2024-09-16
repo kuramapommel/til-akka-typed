@@ -8,6 +8,7 @@ import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, Product
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
 import com.kuramapommel.til_akka_typed.usecase.EditProductUseCase
+import com.kuramapommel.til_akka_typed.usecase.EditProductUseCaseImpl
 
 object ProductActor:
   def apply(): Behavior[Command] =
@@ -43,13 +44,22 @@ object ProductActor:
           Behaviors.same
 
         case Command.Edit(id, replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
-          val usecase = new EditProductUseCase {}
+          val promise = Promise[Product]
+          val productRepository = ProductRepository(
+            id => productOpt.get,
+            guest =>
+              promise.success(guest)
+              guest.id
+          )
+          val usecase = EditProductUseCaseImpl(productRepository)
 
           ctx.pipeToSelf(
             usecase
               .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
                 replyTo ! event
               .value
+              .flatMap: ? =>
+                promise.future
           ):
             case Success(_)         => Command.Save(productOpt.get)
             case Failure(exception) => ???

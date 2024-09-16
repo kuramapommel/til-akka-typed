@@ -17,14 +17,4 @@ trait EditProductUseCase:
       descriptionOpt: Option[String]
   )(
       eventPublisher: ProductEvent => Unit
-  )(implicit ec: ExecutionContext): EitherT[Future, ProductError, Unit] =
-    for _ <- EitherT.rightT[Future, ProductError](())
-    yield eventPublisher(
-      ProductEvent.Edited(
-        ProductId(id),
-        name = nameOpt,
-        imageUrl = imageUrlOpt,
-        price = priceOpt,
-        description = descriptionOpt
-      )
-    )
+  )(implicit ec: ExecutionContext): EitherT[Future, ProductError, Unit]

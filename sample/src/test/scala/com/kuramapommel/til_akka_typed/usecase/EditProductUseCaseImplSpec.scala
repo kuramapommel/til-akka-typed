@@ -13,7 +13,7 @@ class EditProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWord
 
   "EditProductUseCaseImpl" should:
     "プロダクトの編集が成功したとき Edited イベントが発生する" in:
-      val productId = ProductId("test-id")
+      val productId = "test-id"
       val usecase = new EditProductUseCaseImpl(
         ProductRepository(
           id => Product(id, "product1", "https://placehold.jp/123456/abcdef/150x150.png", 100, "description"),
@@ -39,7 +39,7 @@ class EditProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWord
                    Some(actualDescription)
                  ) =>
               (actualProductId, actualName, actualImageUrl, actualPrice, actualDescription) must be(
-                (productId, name, imageUrl, price, description)
+                (ProductId(productId), name, imageUrl, price, description)
               )
             case _ => fail()
         case Left(_) => fail()
