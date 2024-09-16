@@ -37,7 +37,7 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
         )
       )
 
-    "Edit(productId, Some(\"商品\", sender)) コマンドを受信し処理が成功したとき Changed イベントが発生する" in:
+    "Edit(productId, Some(\"商品\", sender)) コマンドを受信し処理が成功したとき Edited イベントが発生する" in:
       val productId = "test-id"
       val actor = testKit.spawn(ProductActor())
       val probe = testKit.createTestProbe[ProductEvent]()
