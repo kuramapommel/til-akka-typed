@@ -1,11 +1,13 @@
 package com.kuramapommel.til_akka_typed.usecase
 
-import scala.concurrent.Promise
+import scala.concurrent.{ExecutionContext, Future, Promise}
+import cats.data.EitherT
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import com.kuramapommel.til_akka_typed.domain.model.{ProductId, ProductIdGenerator, ProductRepository}
+import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, ProductIdGenerator, ProductRepository}
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
+import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 
 class RegisterProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWordSpecLike:
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,17 +21,20 @@ class RegisterProductUseCaseImplSpec extends ScalaFutures with Matchers with Any
       val description = "description"
 
       var savedId = ProductId("error")
+      val repository = new ProductRepository:
+        def findById(id: ProductId)(implicit ec: ExecutionContext): EitherT[Future, ProductError, Product] =
+          // findById は呼ばれるはずがないので、失敗させる
+          fail()
+
+        def save(product: Product)(implicit ec: ExecutionContext): EitherT[Future, ProductError, ProductId] =
+          // save は呼ばれるはずなので、保存した ID を一時保存しておく
+          savedId = product.id
+          EitherT.rightT[Future, ProductError](savedId)
       val usecase = new RegisterProductUseCaseImpl(
         ProductIdGenerator(() => productId),
-        ProductRepository(
-          // findById は呼ばれるはずがないので、失敗させる
-          id => fail(),
-          guest =>
-            // save は呼ばれるはずなので、保存した ID を一時保存しておく
-            savedId = guest.id
-            guest.id
-        )
+        repository
       )
+
       val promise = Promise[ProductEvent]()
       val result = usecase.execute(name, imageUrl, price, description): event =>
         promise.success(event)

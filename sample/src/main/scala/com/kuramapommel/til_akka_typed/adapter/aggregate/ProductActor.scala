@@ -7,68 +7,41 @@ import akka.actor.typed.scaladsl.Behaviors
 import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, ProductIdGenerator, ProductRepository}
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
-import com.kuramapommel.til_akka_typed.usecase.EditProductUseCase
 import com.kuramapommel.til_akka_typed.usecase.EditProductUseCaseImpl
 
 object ProductActor:
   def apply(): Behavior[Command] =
-    active(None)
+    Behaviors.setup[Command]: (ctx) =>
+      val productRepository = ProductActorRepository(None, ctx)
+      active(productRepository)
 
-  def active(productOpt: Option[Product]): Behavior[Command] =
+  def active(productRepository: ProductRepository): Behavior[Command] =
     Behaviors.receive[Command]: (ctx, msg) =>
+      import Command._
       implicit val executionContext =
         ctx.system.executionContext
+
       msg match
-        case Command.Register(id, name, imageUrl, price, description, replyTo) =>
-          val promise = Promise[Product]
-          val productIdGenerator = ProductIdGenerator(() => ProductId(id))
-          val productRepository = ProductRepository(
-            id => productOpt.get,
-            guest =>
-              promise.success(guest)
-              guest.id
-          )
-          val usecase =
-            new RegisterProductUseCaseImpl(productIdGenerator, productRepository)
-
-          ctx.pipeToSelf(
-            usecase
-              .execute(name, imageUrl, price, description): event =>
-                replyTo ! event
-              .value
-              .flatMap: ? =>
-                promise.future
-          ):
-            case Success(product)   => Command.Save(product)
-            case Failure(exception) => ???
+        case Register(id, name, imageUrl, price, description, replyTo) =>
+          val usecase = RegisterProductUseCaseImpl(ProductIdGenerator(() => ProductId(id)), productRepository)
+          usecase
+            .execute(name, imageUrl, price, description): event =>
+              replyTo ! event
           Behaviors.same
 
-        case Command.Edit(id, replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
-          val promise = Promise[Product]
-          val productRepository = ProductRepository(
-            id => productOpt.get,
-            guest =>
-              promise.success(guest)
-              guest.id
-          )
+        case Edit(id, replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
           val usecase = EditProductUseCaseImpl(productRepository)
-
-          ctx.pipeToSelf(
-            usecase
-              .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
-                replyTo ! event
-              .value
-              .flatMap: ? =>
-                promise.future
-          ):
-            case Success(_)         => Command.Save(productOpt.get)
-            case Failure(exception) => ???
+          usecase
+            .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
+              replyTo ! event
           Behaviors.same
 
-        case Command.Save(product) => active(Some(product))
+        case Store(product) =>
+          val productRepository = ProductActorRepository(Some(product), ctx)
+          active(productRepository)
 
 enum Command:
-  case Save(product: Product)
+  case Store(product: Product)
   case Register(
       id: String,
       name: String,

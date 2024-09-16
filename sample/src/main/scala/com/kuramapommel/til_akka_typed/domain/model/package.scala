@@ -29,4 +29,5 @@ package object model:
       )
 
   object error:
-    sealed trait ProductError
+    enum ProductError:
+      case NotFound
