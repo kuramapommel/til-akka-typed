@@ -10,13 +10,13 @@ import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 object ProductActorRepository:
   def apply(productOpt: Option[Product], ctx: ActorContext[Command]): ProductRepository =
     new ProductRepository:
-      def findById(id: ProductId)(implicit ec: ExecutionContext): EitherT[Future, ProductError, Product] =
+      def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =
         productOpt match
           case Some(product) if product.id == id =>
             EitherT.rightT[Future, ProductError](product)
           case _ =>
             EitherT.leftT[Future, Product](ProductError.NotFound)
-      def save(product: Product)(implicit ec: ExecutionContext): EitherT[Future, ProductError, ProductId] =
+      def save(product: Product): ExecutionContext ?=> EitherT[Future, ProductError, ProductId] =
         ctx.pipeToSelf(Future.successful(product)):
           case Success(product)   => Command.Store(product)
           case Failure(exception) => ???

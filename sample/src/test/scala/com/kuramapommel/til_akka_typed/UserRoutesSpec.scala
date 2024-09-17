@@ -18,7 +18,7 @@ class UserRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with Sc
   // the Akka HTTP route testkit does not yet support a typed actor system (https://github.com/akka/akka-http/issues/2036)
   // so we have to adapt for now
   lazy val testKit = ActorTestKit()
-  implicit def typedSystem: ActorSystem[?] = testKit.system
+  given typedSystem: ActorSystem[?] = testKit.system
   override def createActorSystem(): akka.actor.ActorSystem =
     testKit.system.classicSystem
 
@@ -31,7 +31,7 @@ class UserRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with Sc
 
   // use the json formats to marshal and unmarshall objects in the test
   import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-  import JsonFormats._
+  import JsonFormats.given
   // #set-up
 
   // #actual-test

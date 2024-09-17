@@ -9,12 +9,12 @@ package object model:
   case class ProductId(value: String)
 
   trait ProductIdGenerator:
-    def generate()(implicit ec: ExecutionContext): EitherT[Future, ProductError, ProductId]
+    def generate(): ExecutionContext ?=> EitherT[Future, ProductError, ProductId]
 
   object ProductIdGenerator:
     def apply(generateImpl: () => ProductId): ProductIdGenerator =
       new ProductIdGenerator:
-        def generate()(implicit ec: ExecutionContext): EitherT[Future, ProductError, ProductId] =
+        def generate(): ExecutionContext ?=> EitherT[Future, ProductError, ProductId] =
           EitherT.rightT[Future, ProductError](generateImpl())
 
   object event:

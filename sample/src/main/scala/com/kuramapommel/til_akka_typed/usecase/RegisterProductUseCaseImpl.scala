@@ -13,7 +13,7 @@ class RegisterProductUseCaseImpl(
 
   def execute(name: String, imageUrl: String, price: Int, description: String)(
       eventPublisher: ProductEvent => Unit
-  )(implicit ec: ExecutionContext): EitherT[Future, ProductError, Unit] =
+  ): ExecutionContext ?=> EitherT[Future, ProductError, Unit] =
     for
       product <- productIdGenerator
         .generate()

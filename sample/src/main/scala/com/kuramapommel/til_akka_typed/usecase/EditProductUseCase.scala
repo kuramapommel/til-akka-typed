@@ -17,4 +17,4 @@ trait EditProductUseCase:
       descriptionOpt: Option[String]
   )(
       eventPublisher: ProductEvent => Unit
-  )(implicit ec: ExecutionContext): EitherT[Future, ProductError, Unit]
+  ): ExecutionContext ?=> EitherT[Future, ProductError, Unit]

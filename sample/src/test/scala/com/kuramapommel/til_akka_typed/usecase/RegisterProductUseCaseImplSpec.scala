@@ -22,11 +22,11 @@ class RegisterProductUseCaseImplSpec extends ScalaFutures with Matchers with Any
 
       var savedId = ProductId("error")
       val repository = new ProductRepository:
-        def findById(id: ProductId)(implicit ec: ExecutionContext): EitherT[Future, ProductError, Product] =
+        def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =
           // findById は呼ばれるはずがないので、失敗させる
           fail()
 
-        def save(product: Product)(implicit ec: ExecutionContext): EitherT[Future, ProductError, ProductId] =
+        def save(product: Product): ExecutionContext ?=> EitherT[Future, ProductError, ProductId] =
           // save は呼ばれるはずなので、保存した ID を一時保存しておく
           savedId = product.id
           EitherT.rightT[Future, ProductError](savedId)

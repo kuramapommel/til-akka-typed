@@ -16,12 +16,12 @@ class EditProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWord
     "プロダクトの編集が成功したとき Edited イベントが発生する" in:
       val productId = "test-id"
       val repository = new ProductRepository:
-        def findById(id: ProductId)(implicit ec: ExecutionContext): EitherT[Future, ProductError, Product] =
+        def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =
           EitherT.rightT[Future, ProductError](
             Product(id, "product1", "https://placehold.jp/123456/abcdef/150x150.png", 100, "description")
           )
 
-        def save(product: Product)(implicit ec: ExecutionContext): EitherT[Future, ProductError, ProductId] =
+        def save(product: Product): ExecutionContext ?=> EitherT[Future, ProductError, ProductId] =
           EitherT.rightT[Future, ProductError](product.id)
 
       val name = "商品"

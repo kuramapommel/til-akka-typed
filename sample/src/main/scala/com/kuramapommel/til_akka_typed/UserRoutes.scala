@@ -18,11 +18,11 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
 
   // #user-routes-class
   import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-  import JsonFormats._
+  import JsonFormats.given
   // #import-json-formats
 
   // If ask takes more time than this to complete the request is failed
-  implicit private val timeout: Timeout =
+  given timeout: Timeout =
     Timeout.create(system.settings.config.getDuration("my-app.routes.ask-timeout"))
 
   def getUsers(): Future[Users] =

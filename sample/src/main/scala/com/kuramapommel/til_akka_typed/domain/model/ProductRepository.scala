@@ -5,5 +5,5 @@ import cats.data.EitherT
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 
 trait ProductRepository:
-  def findById(id: ProductId)(implicit ec: ExecutionContext): EitherT[Future, ProductError, Product]
-  def save(product: Product)(implicit ec: ExecutionContext): EitherT[Future, ProductError, ProductId]
+  def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product]
+  def save(product: Product): ExecutionContext ?=> EitherT[Future, ProductError, ProductId]

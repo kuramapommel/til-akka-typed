@@ -17,7 +17,7 @@ class EditProductUseCaseImpl(
       descriptionOpt: Option[String]
   )(
       eventPublisher: ProductEvent => Unit
-  )(implicit ec: ExecutionContext): EitherT[Future, ProductError, Unit] =
+  ): ExecutionContext ?=> EitherT[Future, ProductError, Unit] =
     val productId = ProductId(id)
     for
       product <- productRepository

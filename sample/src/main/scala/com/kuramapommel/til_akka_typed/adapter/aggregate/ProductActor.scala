@@ -8,6 +8,7 @@ import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, Product
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
 import com.kuramapommel.til_akka_typed.usecase.EditProductUseCaseImpl
+import scala.concurrent.ExecutionContext
 
 object ProductActor:
   def apply(): Behavior[Command] =
@@ -18,7 +19,7 @@ object ProductActor:
   def active(productRepository: ProductRepository): Behavior[Command] =
     Behaviors.receive[Command]: (ctx, msg) =>
       import Command._
-      implicit val executionContext =
+      given executionContext: ExecutionContext =
         ctx.system.executionContext
 
       msg match
