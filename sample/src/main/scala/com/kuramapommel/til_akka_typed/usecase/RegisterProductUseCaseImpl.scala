@@ -9,7 +9,7 @@ import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 class RegisterProductUseCaseImpl(
     productIdGenerator: ProductIdGenerator,
     productRepository: ProductRepository
-):
+) extends RegisterProductUseCase:
 
   def execute(name: String, imageUrl: String, price: Int, description: String)(
       eventPublisher: ProductEvent => Unit
