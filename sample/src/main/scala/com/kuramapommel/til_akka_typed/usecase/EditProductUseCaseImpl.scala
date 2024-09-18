@@ -6,9 +6,16 @@ import com.kuramapommel.til_akka_typed.domain.model.{ProductId, ProductRepositor
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 
+/** 商品編集ユースケース実装.
+  * @constructor
+  *   商品編集ユースケース実装を生成する.
+  * @param productRepository
+  *   商品リポジトリ
+  */
 class EditProductUseCaseImpl(
     productRepository: ProductRepository
 ) extends EditProductUseCase:
+
   override def execute(
       id: String,
       nameOpt: Option[String],
