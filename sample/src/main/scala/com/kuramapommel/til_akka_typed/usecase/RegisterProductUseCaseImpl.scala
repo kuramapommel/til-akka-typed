@@ -3,6 +3,7 @@ package com.kuramapommel.til_akka_typed.usecase
 import scala.concurrent.{ExecutionContext, Future}
 import cats.data.EitherT
 import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, ProductIdGenerator, ProductRepository}
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.ImageURL
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 
@@ -20,7 +21,7 @@ class RegisterProductUseCaseImpl(
     productRepository: ProductRepository
 ) extends RegisterProductUseCase:
 
-  override def execute(name: String, imageUrl: String, price: Int, description: String)(
+  override def execute(name: String, imageUrl: ImageURL, price: Int, description: String)(
       eventPublisher: ProductEvent => Unit
   ): ExecutionContext ?=> EitherT[Future, ProductError, Unit] =
     for

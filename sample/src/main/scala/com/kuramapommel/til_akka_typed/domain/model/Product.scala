@@ -1,5 +1,7 @@
 package com.kuramapommel.til_akka_typed.domain.model
 
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.ImageURL
+
 /** 商品エンティティ.
   *
   * @constructor
@@ -15,7 +17,7 @@ package com.kuramapommel.til_akka_typed.domain.model
   * @param description
   *   商品説明
   */
-final case class Product(id: ProductId, name: String, imageUrl: String, price: Int, description: String):
+final case class Product(id: ProductId, name: String, imageUrl: ImageURL, price: Int, description: String):
 
   /** 商品情報の編集.
     *
@@ -32,7 +34,7 @@ final case class Product(id: ProductId, name: String, imageUrl: String, price: I
     */
   def edit(
       nameOpt: Option[String],
-      imageUrlOpt: Option[String],
+      imageUrlOpt: Option[ImageURL],
       priceOpt: Option[Int],
       descriptionOpt: Option[String]
   ): Product =

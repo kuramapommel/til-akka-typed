@@ -6,6 +6,7 @@ import cats.data.EitherT
 import scala.concurrent.Future
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 import com.kuramapommel.til_akka_typed.domain.model.ProductId
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.ImageURL
 
 /** 商品編集ユースケース. */
 trait EditProductUseCase:
@@ -30,7 +31,7 @@ trait EditProductUseCase:
   def execute(
       id: String,
       nameOpt: Option[String],
-      imageUrlOpt: Option[String],
+      imageUrlOpt: Option[ImageURL],
       priceOpt: Option[Int],
       descriptionOpt: Option[String]
   )(

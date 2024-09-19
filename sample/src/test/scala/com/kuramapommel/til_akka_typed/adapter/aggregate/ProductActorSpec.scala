@@ -1,11 +1,14 @@
 package com.kuramapommel.til_akka_typed.adapter.aggregate
 
+import io.github.iltotore.iron.*
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import com.kuramapommel.til_akka_typed.domain.model.ProductId
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
+import com.kuramapommel.til_akka_typed.domain.model.given
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.ImageURL
 
 class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Matchers:
   val testKit = ActorTestKit()
@@ -21,7 +24,7 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
       actor ! Command.Register(
         productId,
         "product1",
-        "https://placehold.jp/123456/abcdef/150x150.png",
+        ImageURL("https://placehold.jp/123456/abcdef/150x150.png"),
         100,
         "description",
         probe.ref
@@ -31,7 +34,7 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
         ProductEvent.Registered(
           ProductId(productId),
           "product1",
-          "https://placehold.jp/123456/abcdef/150x150.png",
+          ImageURL("https://placehold.jp/123456/abcdef/150x150.png"),
           100,
           "description"
         )
@@ -45,7 +48,7 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
       actor ! Command.Register(
         productId,
         "product1",
-        "https://placehold.jp/123456/abcdef/150x150.png",
+        ImageURL("https://placehold.jp/123456/abcdef/150x150.png"),
         100,
         "description",
         probe.ref
@@ -55,14 +58,14 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
         ProductEvent.Registered(
           ProductId(productId),
           "product1",
-          "https://placehold.jp/123456/abcdef/150x150.png",
+          ImageURL("https://placehold.jp/123456/abcdef/150x150.png"),
           100,
           "description"
         )
       )
 
       val name = "商品"
-      actor ! Command.Edit(productId, probe.ref, Some(name))
+      actor ! Command.Edit(productId, probe.ref, nameOpt = Some(name))
 
       probe.expectMessage(
         ProductEvent.Edited(
