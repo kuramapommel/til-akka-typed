@@ -2,8 +2,8 @@ package com.kuramapommel.til_akka_typed.usecase
 
 import scala.concurrent.{ExecutionContext, Future}
 import cats.data.EitherT
-import com.kuramapommel.til_akka_typed.domain.model.{ProductId, ProductRepository}
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.ImageURL
+import com.kuramapommel.til_akka_typed.domain.model.ProductRepository
+import com.kuramapommel.til_akka_typed.domain.model.valueobject._
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 

@@ -5,8 +5,7 @@ import scala.concurrent.ExecutionContext
 import cats.data.EitherT
 import scala.concurrent.Future
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
-import com.kuramapommel.til_akka_typed.domain.model.ProductId
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.ImageURL
+import com.kuramapommel.til_akka_typed.domain.model.valueobject._
 
 /** 商品編集ユースケース. */
 trait EditProductUseCase:

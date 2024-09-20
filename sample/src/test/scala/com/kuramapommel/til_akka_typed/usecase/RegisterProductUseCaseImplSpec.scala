@@ -6,9 +6,9 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import cats.data.EitherT
 import io.github.iltotore.iron.*
-import com.kuramapommel.til_akka_typed.domain.model.given
-import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, ProductIdGenerator, ProductRepository}
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.ImageURL
+import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductIdGenerator, ProductRepository}
+import com.kuramapommel.til_akka_typed.domain.model.valueobject._
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.given
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 
@@ -19,7 +19,7 @@ class RegisterProductUseCaseImplSpec extends ScalaFutures with Matchers with Any
     "プロダクトの登録が成功したとき Registered イベントが発生する" in:
       val productId = ProductId("test-id")
       val name = "product1"
-      val imageUrl = ImageURL("https://placehold.jp/123456/abcdef/150x150.png")
+      val imageUrl: ImageURL = "https://placehold.jp/123456/abcdef/150x150.png"
       val price = 100
       val description = "description"
 

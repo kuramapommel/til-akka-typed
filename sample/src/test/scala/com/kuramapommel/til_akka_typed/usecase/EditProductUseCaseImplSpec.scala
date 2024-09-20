@@ -6,11 +6,11 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import cats.data.EitherT
 import io.github.iltotore.iron.*
-import com.kuramapommel.til_akka_typed.domain.model.given
-import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductId, ProductRepository}
+import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductRepository}
+import com.kuramapommel.til_akka_typed.domain.model.valueobject._
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.given
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.ImageURL
 
 class EditProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWordSpecLike:
   import scala.concurrent.ExecutionContext.Implicits.global
@@ -21,14 +21,14 @@ class EditProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWord
       val repository = new ProductRepository:
         def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =
           EitherT.rightT[Future, ProductError](
-            Product(id, "product1", ImageURL("https://placehold.jp/123456/abcdef/150x150.png"), 100, "description")
+            Product(id, "product1", "https://placehold.jp/123456/abcdef/150x150.png", 100, "description")
           )
 
         def save(product: Product): ExecutionContext ?=> EitherT[Future, ProductError, ProductId] =
           EitherT.rightT[Future, ProductError](product.id)
 
       val name = "商品"
-      val imageUrl = ImageURL("https://placehold.jp/abcdef/123456/150x150.png")
+      val imageUrl: ImageURL = "https://placehold.jp/abcdef/123456/150x150.png"
       val price = 200
       val description = "説明"
       val usecase = new EditProductUseCaseImpl(repository)

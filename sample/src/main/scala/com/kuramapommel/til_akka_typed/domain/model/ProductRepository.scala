@@ -2,6 +2,7 @@ package com.kuramapommel.til_akka_typed.domain.model
 
 import scala.concurrent.{ExecutionContext, Future}
 import cats.data.EitherT
+import com.kuramapommel.til_akka_typed.domain.model.valueobject._
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 
 /** 商品リポジトリ. */
