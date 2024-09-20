@@ -1,6 +1,6 @@
 package com.kuramapommel.til_akka_typed.domain.model
 
-import com.kuramapommel.til_akka_typed.domain.model.valueobject._
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 
 /** 商品エンティティ.
   *

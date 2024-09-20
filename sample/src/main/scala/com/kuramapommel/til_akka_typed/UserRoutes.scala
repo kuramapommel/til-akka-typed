@@ -1,15 +1,15 @@
 package com.kuramapommel.til_akka_typed
 
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 
 import scala.concurrent.Future
-import com.kuramapommel.til_akka_typed.UserRegistry._
-import com.kuramapommel.til_akka_typed.UserRegistry.Command._
+import com.kuramapommel.til_akka_typed.UserRegistry.*
+import com.kuramapommel.til_akka_typed.UserRegistry.Command.*
 import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.AskPattern._
+import akka.actor.typed.scaladsl.AskPattern.*
 import akka.util.Timeout
 
 //#import-json-formats

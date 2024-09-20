@@ -5,7 +5,7 @@ import scala.util.{Failure, Success}
 import akka.actor.typed.scaladsl.ActorContext
 import cats.data.EitherT
 import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductRepository}
-import com.kuramapommel.til_akka_typed.domain.model.valueobject._
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 
 /** 商品アクターリポジトリ. */

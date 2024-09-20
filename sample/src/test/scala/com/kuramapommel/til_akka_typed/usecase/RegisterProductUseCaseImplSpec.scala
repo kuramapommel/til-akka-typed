@@ -7,7 +7,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import cats.data.EitherT
 import io.github.iltotore.iron.*
 import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductIdGenerator, ProductRepository}
-import com.kuramapommel.til_akka_typed.domain.model.valueobject._
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 

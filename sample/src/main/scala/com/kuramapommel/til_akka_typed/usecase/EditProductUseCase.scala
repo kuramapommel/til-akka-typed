@@ -1,11 +1,10 @@
 package com.kuramapommel.til_akka_typed.usecase
 
-import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import cats.data.EitherT
-import scala.concurrent.Future
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
-import com.kuramapommel.til_akka_typed.domain.model.valueobject._
+import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 
 /** 商品編集ユースケース. */
 trait EditProductUseCase:

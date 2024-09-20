@@ -1,15 +1,13 @@
 package com.kuramapommel.til_akka_typed.adapter.aggregate
 
-import scala.concurrent.Promise
+import scala.concurrent.{ExecutionContext, Promise}
 import scala.util.{Failure, Success}
 import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector}
 import akka.actor.typed.scaladsl.Behaviors
 import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductIdGenerator, ProductRepository}
-import com.kuramapommel.til_akka_typed.domain.model.valueobject._
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
-import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
-import com.kuramapommel.til_akka_typed.usecase.EditProductUseCaseImpl
-import scala.concurrent.ExecutionContext
+import com.kuramapommel.til_akka_typed.usecase.{EditProductUseCaseImpl, RegisterProductUseCaseImpl}
 
 /** 商品アクター. */
 object ProductActor:

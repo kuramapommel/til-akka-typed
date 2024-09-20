@@ -8,7 +8,7 @@ import spray.json.DefaultJsonProtocol
 
 object JsonFormats:
   // import the default encoders for primitive types (Int, String, Lists etc)
-  import DefaultJsonProtocol._
+  import DefaultJsonProtocol.*
 
   given userJsonFormat: RootJsonFormat[User] = jsonFormat3(User.apply)
   given usersJsonFormat: RootJsonFormat[Users] = jsonFormat1(Users.apply)
