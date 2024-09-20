@@ -6,7 +6,6 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import com.kuramapommel.til_akka_typed.domain.model.valueobject._
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.given
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 
 class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Matchers:
