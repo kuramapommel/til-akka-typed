@@ -1,18 +1,20 @@
 package com.kuramapommel.til_akka_typed.usecase
 
-import scala.concurrent.{ExecutionContext, Future}
 import cats.data.EitherT
 import com.kuramapommel.til_akka_typed.domain.model.ProductRepository
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
-/** 商品編集ユースケース実装.
-  * @constructor
-  *   商品編集ユースケース実装を生成する.
-  * @param productRepository
-  *   商品リポジトリ
-  */
+/**
+ * 商品編集ユースケース実装.
+ * @constructor
+ *   商品編集ユースケース実装を生成する.
+ * @param productRepository
+ *   商品リポジトリ
+ */
 class EditProductUseCaseImpl(
     productRepository: ProductRepository
 ) extends EditProductUseCase:

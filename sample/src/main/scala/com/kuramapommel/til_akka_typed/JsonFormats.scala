@@ -1,10 +1,9 @@
 package com.kuramapommel.til_akka_typed
 
 import com.kuramapommel.til_akka_typed.UserRegistry.ActionPerformed
-
+import spray.json.DefaultJsonProtocol
 //#json-formats
 import spray.json.RootJsonFormat
-import spray.json.DefaultJsonProtocol
 
 object JsonFormats:
   // import the default encoders for primitive types (Int, String, Lists etc)

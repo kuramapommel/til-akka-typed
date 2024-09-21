@@ -1,23 +1,27 @@
 package com.kuramapommel.til_akka_typed.adapter.aggregate
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 import akka.actor.typed.scaladsl.ActorContext
 import cats.data.EitherT
-import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductRepository}
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
+import com.kuramapommel.til_akka_typed.domain.model.Product
+import com.kuramapommel.til_akka_typed.domain.model.ProductRepository
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.util.Failure
+import scala.util.Success
 
 /** 商品アクターリポジトリ. */
 object ProductActorRepository:
-  /** 商品アクターリポジトリの生成.
-    * @param productOpt
-    *   商品エンティティのオプション
-    * @param ctx
-    *   アクターコンテキスト
-    * @return
-    *   商品アクターリポジトリ
-    */
+  /**
+   * 商品アクターリポジトリの生成.
+   * @param productOpt
+   *   商品エンティティのオプション
+   * @param ctx
+   *   アクターコンテキスト
+   * @return
+   *   商品アクターリポジトリ
+   */
   def apply(productOpt: Option[Product], ctx: ActorContext[Command]): ProductRepository =
     new ProductRepository:
       override def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =

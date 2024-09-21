@@ -1,15 +1,19 @@
 package com.kuramapommel.til_akka_typed.usecase
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import cats.data.EitherT
+import com.kuramapommel.til_akka_typed.domain.model.Product
+import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
+import com.kuramapommel.til_akka_typed.domain.model.ProductRepository
+import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
+import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
+import io.github.iltotore.iron.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import cats.data.EitherT
-import io.github.iltotore.iron.*
-import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductIdGenerator, ProductRepository}
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
-import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
-import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.Promise
 
 class RegisterProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWordSpecLike:
   import scala.concurrent.ExecutionContext.Implicits.global

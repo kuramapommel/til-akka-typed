@@ -1,21 +1,25 @@
 package com.kuramapommel.til_akka_typed.usecase
 
-import scala.concurrent.{ExecutionContext, Future}
 import cats.data.EitherT
-import com.kuramapommel.til_akka_typed.domain.model.{Product, ProductIdGenerator, ProductRepository}
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
-import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
+import com.kuramapommel.til_akka_typed.domain.model.Product
+import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
+import com.kuramapommel.til_akka_typed.domain.model.ProductRepository
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
+import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
-/** 商品登録ユースケース実装.
-  *
-  * @constructor
-  *   商品登録ユースケース実装を生成する.
-  * @param productIdGenerator
-  *   商品IDジェネレータ
-  * @param productRepository
-  *   商品リポジトリ
-  */
+/**
+ * 商品登録ユースケース実装.
+ *
+ * @constructor
+ *   商品登録ユースケース実装を生成する.
+ * @param productIdGenerator
+ *   商品IDジェネレータ
+ * @param productRepository
+ *   商品リポジトリ
+ */
 class RegisterProductUseCaseImpl(
     productIdGenerator: ProductIdGenerator,
     productRepository: ProductRepository

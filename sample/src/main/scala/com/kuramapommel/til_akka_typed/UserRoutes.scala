@@ -1,24 +1,23 @@
 package com.kuramapommel.til_akka_typed
 
-import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
-
-import scala.concurrent.Future
-import com.kuramapommel.til_akka_typed.UserRegistry.*
-import com.kuramapommel.til_akka_typed.UserRegistry.Command.*
 import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.AskPattern.*
+import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Directives.*
+import akka.http.scaladsl.server.Route
 import akka.util.Timeout
+import com.kuramapommel.til_akka_typed.UserRegistry.*
+import com.kuramapommel.til_akka_typed.UserRegistry.Command.*
+import scala.concurrent.Future
 
 //#import-json-formats
 //#user-routes-class
 class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val system: ActorSystem[?]):
 
-  // #user-routes-class
-  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import JsonFormats.given
+  // #user-routes-class
+  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
   // #import-json-formats
 
   // If ask takes more time than this to complete the request is failed

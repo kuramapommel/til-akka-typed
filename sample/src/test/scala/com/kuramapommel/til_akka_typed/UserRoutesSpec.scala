@@ -29,9 +29,9 @@ class UserRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with Sc
   val userRegistry = testKit.spawn(UserRegistry())
   lazy val routes = new UserRoutes(userRegistry).userRoutes
 
-  // use the json formats to marshal and unmarshall objects in the test
-  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import JsonFormats.given
+  // use the json formats to marshal and unmarshall objects in the test
+  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.*
   // #set-up
 
   // #actual-test
