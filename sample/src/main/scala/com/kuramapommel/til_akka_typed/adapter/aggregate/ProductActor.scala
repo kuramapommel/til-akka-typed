@@ -2,7 +2,6 @@ package com.kuramapommel.til_akka_typed.adapter.aggregate
 
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
-import akka.actor.typed.DispatcherSelector
 import akka.actor.typed.scaladsl.Behaviors
 import com.kuramapommel.til_akka_typed.domain.model.Product
 import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
@@ -12,9 +11,6 @@ import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import com.kuramapommel.til_akka_typed.usecase.EditProductUseCaseImpl
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Promise
-import scala.util.Failure
-import scala.util.Success
 
 /** 商品アクター. */
 object ProductActor:
@@ -23,10 +19,10 @@ object ProductActor:
    * @return
    *   商品アクター
    */
-  def apply(): Behavior[Command] =
+  def apply(idGenerator: ProductIdGenerator): Behavior[Command] =
     Behaviors.setup[Command]: (ctx) =>
       val productRepository = ProductActorRepository(None, ctx)
-      active(productRepository)
+      active(productRepository, idGenerator)
 
   /**
    * 商品アクターの動作.
@@ -35,17 +31,16 @@ object ProductActor:
    * @return
    *   商品アクター
    */
-  def active(productRepository: ProductRepository): Behavior[Command] =
+  def active(productRepository: ProductRepository, idGenerator: ProductIdGenerator): Behavior[Command] =
     Behaviors.receive[Command]: (ctx, msg) =>
       import Command.*
       given executionContext: ExecutionContext =
         ctx.system.executionContext
 
       msg match
-        case Register(id, name, imageUrl, price, description, replyTo) =>
+        case Register(name, imageUrl, price, description, replyTo) =>
           val usecase = RegisterProductUseCaseImpl(
-            ProductIdGenerator: () =>
-              ProductId(id),
+            idGenerator,
             productRepository
           )
           usecase
@@ -62,7 +57,7 @@ object ProductActor:
 
         case Store(product) =>
           val productRepository = ProductActorRepository(Some(product), ctx)
-          active(productRepository)
+          active(productRepository, idGenerator)
 
 /** 商品アクターコマンド */
 enum Command:
@@ -75,8 +70,6 @@ enum Command:
 
   /**
    * 登録.
-   * @param id
-   *   商品ID
    * @param name
    *   商品名
    * @param imageUrl
@@ -89,7 +82,6 @@ enum Command:
    *   返信先
    */
   case Register(
-      id: String,
       name: String,
       imageUrl: ImageURL,
       price: Int,

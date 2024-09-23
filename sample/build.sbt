@@ -32,6 +32,7 @@ lazy val root = (project in file(".")).settings(
     "io.circe" %% "circe-parser" % circeVersion,
     "ch.qos.logback" % "logback-classic" % "1.2.11",
     "io.github.iltotore" %% "iron" % "2.6.0",
+    "io.github.iltotore" %% "iron-cats" % "2.6.0",
 
     // test libraries
     "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,

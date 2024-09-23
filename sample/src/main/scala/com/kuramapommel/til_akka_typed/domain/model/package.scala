@@ -5,7 +5,6 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.string.Match
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.util.matching.Regex
 
 package object model:
   import error.*
@@ -44,12 +43,14 @@ package object model:
      */
     case class ProductId(value: String)
 
+    /** URL. */
+    type URLBase = DescribedAs[
+      Match["""https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"""],
+      "URL形式で指定してください"
+    ]
+
     /** 商品画像URL. */
-    type ImageURL = String :|
-      DescribedAs[
-        Match["""https?://[\w/:%#\$&\?\(\)~\.=\+\-]+"""],
-        "URL形式で指定してください"
-      ]
+    type ImageURL = String :| URLBase
 
   object event:
 

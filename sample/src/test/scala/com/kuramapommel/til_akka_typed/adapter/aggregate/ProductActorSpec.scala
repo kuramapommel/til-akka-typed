@@ -1,6 +1,7 @@
 package com.kuramapommel.til_akka_typed.adapter.aggregate
 
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
+import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import io.github.iltotore.iron.*
@@ -15,12 +16,13 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
 
   "ProductActor" should:
     "Register コマンドを受信し処理が成功したとき Registered イベントが発生する" in:
-      val productId = "test-id"
-      val actor = testKit.spawn(ProductActor())
+      val productId = ProductId("test-id")
+      val idGenerator = ProductIdGenerator: () =>
+        productId
+      val actor = testKit.spawn(ProductActor(idGenerator))
       val probe = testKit.createTestProbe[ProductEvent]()
 
       actor ! Command.Register(
-        productId,
         "product1",
         "https://placehold.jp/123456/abcdef/150x150.png",
         100,
@@ -30,7 +32,7 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
 
       probe.expectMessage(
         ProductEvent.Registered(
-          ProductId(productId),
+          productId,
           "product1",
           "https://placehold.jp/123456/abcdef/150x150.png",
           100,
@@ -39,12 +41,13 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
       )
 
     "Edit(productId, Some(\"商品\", sender)) コマンドを受信し処理が成功したとき Edited イベントが発生する" in:
-      val productId = "test-id"
-      val actor = testKit.spawn(ProductActor())
+      val productId = ProductId("test-id")
+      val idGenerator = ProductIdGenerator: () =>
+        productId
+      val actor = testKit.spawn(ProductActor(idGenerator))
       val probe = testKit.createTestProbe[ProductEvent]()
 
       actor ! Command.Register(
-        productId,
         "product1",
         "https://placehold.jp/123456/abcdef/150x150.png",
         100,
@@ -54,7 +57,7 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
 
       probe.expectMessage(
         ProductEvent.Registered(
-          ProductId(productId),
+          productId,
           "product1",
           "https://placehold.jp/123456/abcdef/150x150.png",
           100,
@@ -63,11 +66,11 @@ class ProductActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Match
       )
 
       val name = "商品"
-      actor ! Command.Edit(productId, probe.ref, nameOpt = Some(name))
+      actor ! Command.Edit(productId.value, probe.ref, nameOpt = Some(name))
 
       probe.expectMessage(
         ProductEvent.Edited(
-          ProductId(productId),
+          productId,
           Some(name),
           None,
           None,
