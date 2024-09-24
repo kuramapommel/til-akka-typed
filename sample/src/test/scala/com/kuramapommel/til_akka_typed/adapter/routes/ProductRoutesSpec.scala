@@ -38,3 +38,23 @@ class ProductRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with
         status must be(StatusCodes.Created)
         contentType must be(ContentTypes.`application/json`)
         entityAs[String] must be("""{"productId":"1"}""")
+
+    "商品画像URLがURLのフォーマットとして正しくない場合、BadRequest が返る (POST /product)" in:
+      val productId = "1"
+      val idGenerator = ProductIdGenerator: () =>
+        ProductId(productId)
+      val productActor = testKit.spawn(ProductActor(idGenerator))
+      val routes = ProductRoutes(productActor).routes
+      val productCreateRequest = ProductCreateRequest(
+        name = "test",
+        imageUrl = "bad-request",
+        price = 100,
+        description = "test"
+      )
+      val productCreateRequestEntity = Marshal(productCreateRequest).to[MessageEntity].futureValue
+
+      val request = Post("/product").withEntity(productCreateRequestEntity)
+      request ~> routes ~> check:
+        status must be(StatusCodes.BadRequest)
+        contentType must be(ContentTypes.`application/json`)
+        entityAs[String] must be("""{"message":"URL形式で指定してください"}""")

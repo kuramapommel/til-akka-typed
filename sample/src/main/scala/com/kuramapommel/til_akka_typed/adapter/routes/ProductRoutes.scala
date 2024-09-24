@@ -37,6 +37,9 @@ object ProductRoutes:
       description: String
   )
 
+  /** 商品生成 API リクエストデコーダ */
+  given productCreateJsonFormat: RootJsonFormat[ProductCreateRequest] = jsonFormat4(ProductCreateRequest.apply)
+
   /**
    * 商品作成 API レスポンス.
    *
@@ -45,11 +48,19 @@ object ProductRoutes:
    */
   case class ProductCreatedResponse(productId: String)
 
-  /** 商品生成 API リクエストデコーダ */
-  given productCreateJsonFormat: RootJsonFormat[ProductCreateRequest] = jsonFormat4(ProductCreateRequest.apply)
-
   /** 商品生成 API レスポンスエンコーダ */
   given productCreatedJsonFormat: RootJsonFormat[ProductCreatedResponse] = jsonFormat1(ProductCreatedResponse.apply)
+
+  /**
+   * API エラーレスポンス
+   *
+   * @param message
+   *   エラーメッセージ
+   */
+  case class ErrorMessageResponse(message: String)
+
+  /** 商品生成 API レスポンスエンコーダ */
+  given errorMessageJsonFormat: RootJsonFormat[ErrorMessageResponse] = jsonFormat1(ErrorMessageResponse.apply)
 
 /**
  * 商品作成 API リクエスト.
@@ -81,4 +92,4 @@ class ProductRoutes(productActor: ActorRef[Command])(using system: ActorSystem[?
                     complete((StatusCodes.Created, ProductCreatedResponse(productId.value)))
                   case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
             case Left(message) =>
-              complete((StatusCodes.InternalServerError, s"""{"message":"${message}"}"""))
+              complete((StatusCodes.BadRequest, ErrorMessageResponse(message)))
