@@ -52,6 +52,53 @@ object ProductRoutes:
   given productCreatedJsonFormat: RootJsonFormat[ProductCreatedResponse] = jsonFormat1(ProductCreatedResponse.apply)
 
   /**
+   * 商品情報編集 API リクエスト.
+   *
+   * @param name
+   *   商品名
+   * @param imageUrl
+   *   商品画像URL
+   * @param price
+   *   価格
+   * @param description
+   *   商品説明
+   */
+  case class ProductEditRequest(
+      name: Option[String] = None,
+      imageUrl: Option[String] = None,
+      price: Option[Int] = None,
+      description: Option[String] = None
+  )
+
+  /** 商品情報編集 API リクエストデコーダ */
+  given productEditJsonFormat: RootJsonFormat[ProductEditRequest] = jsonFormat4(ProductEditRequest.apply)
+
+  /**
+   * 商品情報編集 API レスポンス.
+   *
+   * @param productId
+   *  商品ID
+   * @param name
+   *  商品名
+   * @param imageUrl
+   *  商品画像URL
+   * @param price
+   *  価格
+   * @param description
+   *  商品説明
+   */
+  case class ProductEditedResponse(
+      productId: String,
+      name: Option[String] = None,
+      imageUrl: Option[String] = None,
+      price: Option[Int] = None,
+      description: Option[String] = None
+  )
+
+  /** 商品情報編集 API レスポンスエンコーダ */
+  given productEditedJsonFormat: RootJsonFormat[ProductEditedResponse] = jsonFormat5(ProductEditedResponse.apply)
+
+  /**
    * API エラーレスポンス
    *
    * @param message
@@ -59,7 +106,7 @@ object ProductRoutes:
    */
   case class ErrorMessageResponse(message: String)
 
-  /** 商品生成 API レスポンスエンコーダ */
+  /** API エラー レスポンスエンコーダ */
   given errorMessageJsonFormat: RootJsonFormat[ErrorMessageResponse] = jsonFormat1(ErrorMessageResponse.apply)
 
 /**
@@ -75,21 +122,57 @@ class ProductRoutes(productActor: ActorRef[Command])(using system: ActorSystem[?
     Timeout.create(system.settings.config.getDuration("my-app.routes.ask-timeout"))
 
   val routes = pathPrefix("product"):
-    pathEnd:
-      post:
-        entity(as[ProductCreateRequest]): product =>
-          val commandMaybe =
-            for imageUrl <- product.imageUrl.refineEither[URLBase]
-            yield Command.Register(product.name, imageUrl, product.price, product.description, _)
+    concat(
+      pathEnd:
+        post:
+          entity(as[ProductCreateRequest]): product =>
+            val commandMaybe =
+              for imageUrl <- product.imageUrl.refineEither[URLBase]
+              yield Command.Register(product.name, imageUrl, product.price, product.description, _)
 
-          commandMaybe match
-            case Right(command) =>
-              onSuccess(
-                productActor.ask(command)
-              ): registered =>
-                registered match
-                  case ProductEvent.Registered(productId, _, _, _, _) =>
-                    complete((StatusCodes.Created, ProductCreatedResponse(productId.value)))
-                  case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
-            case Left(message) =>
-              complete((StatusCodes.BadRequest, ErrorMessageResponse(message)))
+            commandMaybe match
+              case Right(command) =>
+                onSuccess(
+                  productActor.ask(command)
+                ): registered =>
+                  registered match
+                    case ProductEvent.Registered(productId, _, _, _, _) =>
+                      complete((StatusCodes.Created, ProductCreatedResponse(productId.value)))
+                    case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
+              case Left(message) =>
+                complete((StatusCodes.BadRequest, ErrorMessageResponse(message)))
+      ,
+      path(Segment): productId =>
+        pathEnd:
+          post:
+            entity(as[ProductEditRequest]): product =>
+              val commandMaybe =
+                for imageUrlMaybe: Option[IronType[String, URLBase]] <- product.imageUrl.map(imageUrl =>
+                    imageUrl.refineEither[URLBase]
+                  ) match
+                    case Some(Right(imageUrl)) => Right(Some(imageUrl))
+                    case Some(Left(message))   => Left(message)
+                    case None                  => Right(None)
+                yield Command.Edit(
+                  productId,
+                  _,
+                  product.name,
+                  imageUrlMaybe,
+                  product.price,
+                  product.description
+                )
+
+              commandMaybe match
+                case Right(command) =>
+                  onSuccess(
+                    productActor.ask(command)
+                  ): edited =>
+                    edited match
+                      case ProductEvent.Edited(productId, name, imageUrl, price, description) =>
+                        complete(
+                          (StatusCodes.OK, ProductEditedResponse(productId.value, name, imageUrl, price, description))
+                        )
+                      case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
+                case Left(message) =>
+                  complete((StatusCodes.BadRequest, ErrorMessageResponse(message)))
+    )
