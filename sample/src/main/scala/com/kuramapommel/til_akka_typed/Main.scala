@@ -4,13 +4,18 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
+import com.kuramapommel.til_akka_typed.adapter.aggregate.ProductActor
+import com.kuramapommel.til_akka_typed.adapter.routes.ProductRoutes
+import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
+import com.kuramapommel.til_akka_typed.domain.model.valueobject.ProductId
+import java.util.UUID
 import scala.util.Failure
 import scala.util.Success
 
 //#main-class
 
 // #start-http-server
-def startHttpServer(routes: Route)(implicit system: ActorSystem[?]): Unit =
+def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
   // Akka HTTP still needs a classic ActorSystem to start
   import system.executionContext
 
@@ -27,11 +32,13 @@ def startHttpServer(routes: Route)(implicit system: ActorSystem[?]): Unit =
 @main def main: Unit =
   // #server-bootstrapping
   val rootBehavior = Behaviors.setup[Nothing]: context =>
-    val userRegistryActor = context.spawn(UserRegistry(), "UserRegistryActor")
-    context.watch(userRegistryActor)
+    import context.system
+    val productActor =
+      context.spawn(ProductActor(ProductIdGenerator(() => ProductId(UUID.randomUUID().toString()))), "ProductActor")
+    context.watch(productActor)
 
-    val routes = new UserRoutes(userRegistryActor)(context.system)
-    startHttpServer(routes.userRoutes)(context.system)
+    val routes = new ProductRoutes(productActor)
+    startHttpServer(routes.routes)
 
     Behaviors.empty
   val system = ActorSystem[Nothing](rootBehavior, "HelloAkkaHttpServer")
