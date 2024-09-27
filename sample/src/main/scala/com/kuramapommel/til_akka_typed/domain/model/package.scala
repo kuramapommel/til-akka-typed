@@ -8,7 +8,6 @@ import scala.concurrent.Future
 
 package object model:
   import error.*
-  import event.*
   import valueobject.*
 
   /** 商品IDジェネレータ */

@@ -14,9 +14,16 @@ lazy val root = (project in file(".")).settings(
   inThisBuild(
     List(
       organization := "com.kuramapommel.til_akka_typed",
-      scalaVersion := "3.3.3"
+      scalaVersion := "3.4.3",
+      semanticdbEnabled := true
     )
   ),
+  scalacOptions += {
+    if (scalaVersion.value.startsWith("2.12"))
+      "-Ywarn-unused-import"
+    else
+      "-Wunused:imports"
+  },
   name := "sample",
   libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,

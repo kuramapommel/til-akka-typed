@@ -4,7 +4,6 @@ import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import io.github.iltotore.iron.*
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import scala.annotation.showAsInfix
 
 class ProductSpec extends AnyWordSpecLike with Matchers:
   "Product" should:

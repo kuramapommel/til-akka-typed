@@ -11,7 +11,6 @@ import com.kuramapommel.til_akka_typed.adapter.aggregate.Command
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import io.github.iltotore.iron.*
-import io.github.iltotore.iron.cats.*
 import spray.json.DefaultJsonProtocol.*
 import spray.json.RootJsonFormat
 
