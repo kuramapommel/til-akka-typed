@@ -1,5 +1,6 @@
 cd sample
 sbt clean reload
 sbt scalafmtAll
+sbt "scalafixAll --check"
 git add .
 sbt -v +test
