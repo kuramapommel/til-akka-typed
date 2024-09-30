@@ -40,6 +40,7 @@ lazy val root = (project in file(".")).settings(
     "ch.qos.logback" % "logback-classic" % "1.2.11",
     "io.github.iltotore" %% "iron" % "2.6.0",
     "io.github.iltotore" %% "iron-cats" % "2.6.0",
+    "com.fasterxml.uuid" % "java-uuid-generator" % "5.1.0",
 
     // test libraries
     "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
