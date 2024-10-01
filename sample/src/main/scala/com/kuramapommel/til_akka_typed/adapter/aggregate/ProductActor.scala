@@ -67,7 +67,7 @@ object ProductActor:
           val productRepository = ProductActorRepository(Some(product), ctx)
           active(productRepository, idGenerator)
 
-        case Persist(event) =>
+        case Persist(_, _) =>
           Behaviors.same
 
   def apply(productId: ProductId)(using ctx: ActorContext[Command]): Behavior[Command] =
@@ -93,7 +93,7 @@ object ProductActor:
             usecase
               .execute(name, imageUrl, price, description): event =>
                 ctx.pipeToSelf(Future.successful(event)):
-                  case Success(event) => Command.Persist(event)
+                  case Success(event) => Command.Persist(event, replyTo)
                   case _              => ???
             Effect.none
 
@@ -102,14 +102,14 @@ object ProductActor:
             usecase
               .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
                 ctx.pipeToSelf(Future.successful(event)):
-                  case Success(event) => Command.Persist(event)
+                  case Success(event) => Command.Persist(event, replyTo)
                   case _              => ???
             Effect.none
 
           case Store(product) =>
             Effect.none
 
-          case Persist(event) => Effect.persist(event)
+          case Persist(event, replyTo) => Effect.persist(event).thenReply(replyTo)(_ => event)
 
     val eventHandler: (Option[Product], ProductEvent) => Option[Product] = (productMaybe, event) =>
       event match
@@ -142,7 +142,7 @@ enum Command:
    */
   case Store(product: Product)
 
-  case Persist(event: ProductEvent)
+  case Persist(event: ProductEvent, replyTo: ActorRef[ProductEvent])
 
   /**
    * 登録.
