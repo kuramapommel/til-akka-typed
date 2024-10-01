@@ -2,7 +2,6 @@ package com.kuramapommel.til_akka_typed.adapter.aggregate
 
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.Behaviors
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.Effect
@@ -70,68 +69,69 @@ object ProductActor:
         case Persist(_, _) =>
           Behaviors.same
 
-  def apply(productId: ProductId)(using ctx: ActorContext[Command]): Behavior[Command] =
-    val commandHandler: (Option[Product], Command) => Effect[ProductEvent, Option[Product]] =
-      (productMaybe, command) =>
-        import Command.*
-        given executionContext: ExecutionContext =
-          ctx.system.executionContext
-        val repository = new ProductRepository:
-          override def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =
-            productMaybe match
-              case Some(product) if product.id == id =>
-                EitherT.rightT[Future, ProductError](product)
-              case _ =>
-                EitherT.leftT[Future, Product](ProductError.NotFound)
+  def apply(productId: ProductId): Behavior[Command] =
+    Behaviors.setup[Command]: ctx =>
+      val commandHandler: (Option[Product], Command) => Effect[ProductEvent, Option[Product]] =
+        (productMaybe, command) =>
+          import Command.*
+          given executionContext: ExecutionContext =
+            ctx.system.executionContext
+          val repository = new ProductRepository:
+            override def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =
+              productMaybe match
+                case Some(product) if product.id == id =>
+                  EitherT.rightT[Future, ProductError](product)
+                case _ =>
+                  EitherT.leftT[Future, Product](ProductError.NotFound)
 
-          override def save(product: Product): ExecutionContext ?=> EitherT[Future, ProductError, ProductId] =
-            EitherT.rightT[Future, ProductError](product.id)
+            override def save(product: Product): ExecutionContext ?=> EitherT[Future, ProductError, ProductId] =
+              EitherT.rightT[Future, ProductError](product.id)
 
-        command match
-          case Register(name, imageUrl, price, description, replyTo) =>
-            val usecase = RegisterProductUseCaseImpl(ProductIdGenerator(() => productId), repository)
-            usecase
-              .execute(name, imageUrl, price, description): event =>
-                ctx.pipeToSelf(Future.successful(event)):
-                  case Success(event) => Command.Persist(event, replyTo)
-                  case _              => ???
-            Effect.none
+          command match
+            case Register(name, imageUrl, price, description, replyTo) =>
+              val usecase = RegisterProductUseCaseImpl(ProductIdGenerator(() => productId), repository)
+              usecase
+                .execute(name, imageUrl, price, description): event =>
+                  ctx.pipeToSelf(Future.successful(event)):
+                    case Success(event) => Command.Persist(event, replyTo)
+                    case _              => ???
+              Effect.none
 
-          case Edit(id, replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
-            val usecase = EditProductUseCaseImpl(repository)
-            usecase
-              .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
-                ctx.pipeToSelf(Future.successful(event)):
-                  case Success(event) => Command.Persist(event, replyTo)
-                  case _              => ???
-            Effect.none
+            case Edit(id, replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
+              val usecase = EditProductUseCaseImpl(repository)
+              usecase
+                .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
+                  ctx.pipeToSelf(Future.successful(event)):
+                    case Success(event) => Command.Persist(event, replyTo)
+                    case _              => ???
+              Effect.none
 
-          case Store(product) =>
-            Effect.none
+            case Store(product) =>
+              Effect.none
 
-          case Persist(event, replyTo) => Effect.persist(event).thenReply(replyTo)(_ => event)
+            case Persist(event, replyTo) => Effect.persist(event).thenReply(replyTo)(_ => event)
 
-    val eventHandler: (Option[Product], ProductEvent) => Option[Product] = (productMaybe, event) =>
-      event match
-        case ProductEvent.Registered(productId, name, imageUrl, price, description) =>
-          productMaybe.orElse(Some(Product(productId, name, imageUrl, price, description)))
+      val eventHandler: (Option[Product], ProductEvent) => Option[Product] = (productMaybe, event) =>
+        event match
+          case ProductEvent.Registered(productId, name, imageUrl, price, description) =>
+            productMaybe.orElse(Some(Product(productId, name, imageUrl, price, description)))
 
-        case ProductEvent.Edited(productId, name, imageUrl, price, description) =>
-          productMaybe.map((product) =>
-            product.copy(
-              name = name.getOrElse(product.name),
-              imageUrl = imageUrl.getOrElse(product.imageUrl),
-              price = price.getOrElse(product.price),
-              description = description.getOrElse(product.description)
+          case ProductEvent.Edited(productId, name, imageUrl, price, description) =>
+            productMaybe.map((product) =>
+              product.copy(
+                name = name.getOrElse(product.name),
+                imageUrl = imageUrl.getOrElse(product.imageUrl),
+                price = price.getOrElse(product.price),
+                description = description.getOrElse(product.description)
+              )
             )
-          )
 
-    EventSourcedBehavior[Command, ProductEvent, Option[Product]](
-      persistenceId = PersistenceId.ofUniqueId(productId.value),
-      emptyState = None,
-      commandHandler = commandHandler,
-      eventHandler = eventHandler
-    )
+      EventSourcedBehavior[Command, ProductEvent, Option[Product]](
+        persistenceId = PersistenceId.ofUniqueId(productId.value),
+        emptyState = None,
+        commandHandler = commandHandler,
+        eventHandler = eventHandler
+      )
 
 /** 商品アクターコマンド */
 enum Command:
