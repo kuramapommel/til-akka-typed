@@ -4,11 +4,10 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
+import akka.persistence.typed.PersistenceId
 import com.fasterxml.uuid.Generators
 import com.kuramapommel.til_akka_typed.adapter.aggregate.ProductActor
 import com.kuramapommel.til_akka_typed.adapter.routes.ProductRoutes
-import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
-import com.kuramapommel.til_akka_typed.domain.model.valueobject.ProductId
 import scala.util.Failure
 import scala.util.Success
 
@@ -35,9 +34,7 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
     import context.system
     val productActor =
       context.spawn(
-        ProductActor(
-          ProductIdGenerator(() => ProductId(Generators.timeBasedEpochRandomGenerator().generate().toString()))
-        ),
+        ProductActor(() => PersistenceId.ofUniqueId(Generators.timeBasedEpochRandomGenerator().generate().toString())),
         "ProductActor"
       )
     context.watch(productActor)

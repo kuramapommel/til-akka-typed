@@ -8,31 +8,26 @@ import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.util.Failure
-import scala.util.Success
 
 /** 商品アクターリポジトリ. */
 object ProductActorRepository:
   /**
    * 商品アクターリポジトリの生成.
-   * @param productOpt
+   * @param productMaybe
    *   商品エンティティのオプション
    * @param ctx
    *   アクターコンテキスト
    * @return
    *   商品アクターリポジトリ
    */
-  def apply(productOpt: Option[Product], ctx: ActorContext[Command]): ProductRepository =
+  def apply(productMaybe: Option[Product])(using ctx: ActorContext[Command]): ProductRepository =
     new ProductRepository:
       override def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =
-        productOpt match
+        productMaybe match
           case Some(product) if product.id == id =>
             EitherT.rightT[Future, ProductError](product)
           case _ =>
             EitherT.leftT[Future, Product](ProductError.NotFound)
 
       override def save(product: Product): ExecutionContext ?=> EitherT[Future, ProductError, ProductId] =
-        ctx.pipeToSelf(Future.successful(product)):
-          case Success(product)   => Command.Store(product)
-          case Failure(exception) => ???
         EitherT.rightT[Future, ProductError](product.id)
