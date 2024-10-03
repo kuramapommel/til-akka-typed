@@ -34,7 +34,8 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
     import context.system
     val productActor =
       context.spawn(
-        ProductActor(() => PersistenceId.ofUniqueId(Generators.timeBasedEpochRandomGenerator().generate().toString())),
+        ProductActor: () =>
+          PersistenceId.ofUniqueId(Generators.timeBasedEpochRandomGenerator().generate().toString()),
         "ProductActor"
       )
     context.watch(productActor)

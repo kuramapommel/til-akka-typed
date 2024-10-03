@@ -29,7 +29,7 @@ object ProductActor:
     import Command.*
     Behaviors.setup[Command]: context =>
       given ctx: ActorContext[Command] = context
-      given executionContext: ExecutionContext = ctx.system.executionContext
+      given ec: ExecutionContext = ctx.system.executionContext
 
       val persitenceId = createPersistenceId()
       val commandHandler: (Option[Product], Command) => Effect[ProductEvent, Option[Product]] =
@@ -39,7 +39,11 @@ object ProductActor:
           command match
             case Register(name, imageUrl, price, description, replyTo) =>
               val usecase =
-                RegisterProductUseCaseImpl(ProductIdGenerator(() => ProductId(persitenceId.id)), repository)
+                RegisterProductUseCaseImpl(
+                  ProductIdGenerator: () =>
+                    ProductId(persitenceId.id),
+                  repository
+                )
               usecase
                 .execute(name, imageUrl, price, description): event =>
                   event.pipeToSelf(replyTo)
@@ -58,20 +62,20 @@ object ProductActor:
                 .thenReply(replyTo): _ =>
                   event
 
-      val eventHandler: (Option[Product], ProductEvent) => Option[Product] = (productMaybe, event) =>
-        event match
-          case ProductEvent.Registered(productId, name, imageUrl, price, description) =>
-            productMaybe.orElse(Some(Product(productId, name, imageUrl, price, description)))
+      val eventHandler: (Option[Product], ProductEvent) => Option[Product] =
+        case (None, ProductEvent.Registered(productId, name, imageUrl, price, description)) =>
+          Some(Product(productId, name, imageUrl, price, description))
 
-          case ProductEvent.Edited(productId, name, imageUrl, price, description) =>
-            productMaybe.map((product) =>
-              product.copy(
-                name = name.getOrElse(product.name),
-                imageUrl = imageUrl.getOrElse(product.imageUrl),
-                price = price.getOrElse(product.price),
-                description = description.getOrElse(product.description)
-              )
+        case (Some(product), ProductEvent.Edited(productId, name, imageUrl, price, description)) =>
+          Some(
+            product.copy(
+              name = name.getOrElse(product.name),
+              imageUrl = imageUrl.getOrElse(product.imageUrl),
+              price = price.getOrElse(product.price),
+              description = description.getOrElse(product.description)
             )
+          )
+        case _ => ???
 
       EventSourcedBehavior[Command, ProductEvent, Option[Product]](
         persistenceId = persitenceId,

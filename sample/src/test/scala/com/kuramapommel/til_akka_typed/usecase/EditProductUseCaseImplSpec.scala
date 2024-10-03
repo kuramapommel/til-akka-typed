@@ -7,6 +7,7 @@ import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import io.github.iltotore.iron.*
+import java.util.UUID
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -19,7 +20,7 @@ class EditProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWord
 
   "EditProductUseCaseImpl" should:
     "プロダクトの編集が成功したとき Edited イベントが発生する" in:
-      val productId = "test-id"
+      val productId = UUID.randomUUID().toString()
       val repository = new ProductRepository:
         def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =
           EitherT.rightT[Future, ProductError](
@@ -39,18 +40,18 @@ class EditProductUseCaseImplSpec extends ScalaFutures with Matchers with AnyWord
       val result = usecase.execute(productId, Some(name), Some(imageUrl), Some(price), Some(description)): event =>
         promise.success(event)
 
-      whenReady(result.value):
-        case Right(_) =>
-          whenReady(promise.future):
-            case ProductEvent.Edited(
-                   actualProductId,
-                   Some(actualName),
-                   Some(actualImageUrl),
-                   Some(actualPrice),
-                   Some(actualDescription)
-                 ) =>
-              (actualProductId, actualName, actualImageUrl, actualPrice, actualDescription) must be(
-                (ProductId(productId), name, imageUrl, price, description)
-              )
-            case _ => fail()
-        case Left(_) => fail()
+      whenReady(for
+        _ <- result.value
+        event <- promise.future
+      yield event):
+        case ProductEvent.Edited(
+               actualProductId,
+               Some(actualName),
+               Some(actualImageUrl),
+               Some(actualPrice),
+               Some(actualDescription)
+             ) =>
+          (actualProductId, actualName, actualImageUrl, actualPrice, actualDescription) must be(
+            (ProductId(productId), name, imageUrl, price, description)
+          )
+        case _ => fail()

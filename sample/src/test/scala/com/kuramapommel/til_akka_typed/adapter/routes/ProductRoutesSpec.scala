@@ -9,6 +9,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.persistence.typed.PersistenceId
 import com.kuramapommel.til_akka_typed.adapter.aggregate.ProductActor
 import com.kuramapommel.til_akka_typed.adapter.routes.ProductRoutes.*
+import java.util.UUID
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -19,8 +20,9 @@ class ProductRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with
 
   "ProductRoutes" should:
     "商品を追加することができる (POST /product)" in:
-      val productId = "1"
-      val productActor = testKit.spawn(ProductActor(() => PersistenceId.ofUniqueId(productId)))
+      val productId = UUID.randomUUID().toString()
+      val productActor = testKit.spawn(ProductActor: () =>
+        PersistenceId.ofUniqueId(productId))
       val routes = ProductRoutes(productActor).routes
       val productCreateRequest = ProductCreateRequest(
         name = "test",
@@ -37,8 +39,9 @@ class ProductRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with
         entityAs[String] must be(s"""{"productId":"$productId"}""")
 
     "商品画像URLがURLのフォーマットとして正しくない場合、BadRequest が返る (POST /product)" in:
-      val productId = "1"
-      val productActor = testKit.spawn(ProductActor(() => PersistenceId.ofUniqueId(productId)))
+      val productId = UUID.randomUUID().toString()
+      val productActor = testKit.spawn(ProductActor: () =>
+        PersistenceId.ofUniqueId(productId))
       val routes = ProductRoutes(productActor).routes
       val productCreateRequest = ProductCreateRequest(
         name = "test",
@@ -55,8 +58,9 @@ class ProductRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with
         entityAs[String] must be("""{"message":"URL形式で指定してください"}""")
 
     "商品情報を編集することができる (POST /product/{productId})" in:
-      val productId = "1"
-      val productActor = testKit.spawn(ProductActor(() => PersistenceId.ofUniqueId(productId)))
+      val productId = UUID.randomUUID().toString()
+      val productActor = testKit.spawn(ProductActor: () =>
+        PersistenceId.ofUniqueId(productId))
       val routes = ProductRoutes(productActor).routes
       val productCreateRequestEntity = Marshal(
         ProductCreateRequest(
@@ -89,8 +93,9 @@ class ProductRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with
           )
 
     "商品情報の一部を編集した場合、レスポンスに編集していないプロパティは含まれない (POST /product/{productId})" in:
-      val productId = "1"
-      val productActor = testKit.spawn(ProductActor(() => PersistenceId.ofUniqueId(productId)))
+      val productId = UUID.randomUUID().toString()
+      val productActor = testKit.spawn(ProductActor: () =>
+        PersistenceId.ofUniqueId(productId))
       val routes = ProductRoutes(productActor).routes
       val productCreateRequestEntity = Marshal(
         ProductCreateRequest(

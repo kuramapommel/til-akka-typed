@@ -133,11 +133,10 @@ class ProductRoutes(productActor: ActorRef[Command])(using system: ActorSystem[?
               case Right(command) =>
                 onSuccess(
                   productActor.ask(command)
-                ): registered =>
-                  registered match
-                    case ProductEvent.Registered(productId, _, _, _, _) =>
-                      complete((StatusCodes.Created, ProductCreatedResponse(productId.value)))
-                    case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
+                ):
+                  case ProductEvent.Registered(productId, _, _, _, _) =>
+                    complete((StatusCodes.Created, ProductCreatedResponse(productId.value)))
+                  case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
               case Left(message) =>
                 complete((StatusCodes.BadRequest, ErrorMessageResponse(message)))
       ,
@@ -146,9 +145,8 @@ class ProductRoutes(productActor: ActorRef[Command])(using system: ActorSystem[?
           post:
             entity(as[ProductEditRequest]): product =>
               val commandMaybe =
-                for imageUrlMaybe: Option[IronType[String, URLBase]] <- product.imageUrl.map(imageUrl =>
-                    imageUrl.refineEither[URLBase]
-                  ) match
+                for imageUrlMaybe: Option[IronType[String, URLBase]] <- (product.imageUrl.map: imageUrl =>
+                    imageUrl.refineEither[URLBase]) match
                     case Some(Right(imageUrl)) => Right(Some(imageUrl))
                     case Some(Left(message))   => Left(message)
                     case None                  => Right(None)
@@ -165,13 +163,12 @@ class ProductRoutes(productActor: ActorRef[Command])(using system: ActorSystem[?
                 case Right(command) =>
                   onSuccess(
                     productActor.ask(command)
-                  ): edited =>
-                    edited match
-                      case ProductEvent.Edited(productId, name, imageUrl, price, description) =>
-                        complete(
-                          (StatusCodes.OK, ProductEditedResponse(productId.value, name, imageUrl, price, description))
-                        )
-                      case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
+                  ):
+                    case ProductEvent.Edited(productId, name, imageUrl, price, description) =>
+                      complete(
+                        (StatusCodes.OK, ProductEditedResponse(productId.value, name, imageUrl, price, description))
+                      )
+                    case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
                 case Left(message) =>
                   complete((StatusCodes.BadRequest, ErrorMessageResponse(message)))
     )

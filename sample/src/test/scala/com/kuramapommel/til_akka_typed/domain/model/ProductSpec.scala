@@ -2,13 +2,14 @@ package com.kuramapommel.til_akka_typed.domain.model
 
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import io.github.iltotore.iron.*
+import java.util.UUID
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class ProductSpec extends AnyWordSpecLike with Matchers:
   "Product" should:
     "プロダクトID, プロダクト名, 画像URL, 価格, 詳細情報によって生成される" in:
-      val id = new ProductId("test-id")
+      val id = new ProductId(UUID.randomUUID().toString())
       val name = "product1"
       val imageUrl: ImageURL = "https://placehold.jp/123456/abcdef/150x150.png"
       val price = 100
@@ -18,7 +19,7 @@ class ProductSpec extends AnyWordSpecLike with Matchers:
       product must be(Product(id, name, imageUrl, price, description))
 
     "edit でプロダクト名, 画像URL, 価格, 詳細情報を変更できる" in:
-      val id = new ProductId("test-id")
+      val id = new ProductId(UUID.randomUUID().toString())
       val product =
         Product(id, "product1", "https://placehold.jp/123456/abcdef/150x150.png", 100, "description")
 
