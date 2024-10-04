@@ -1,5 +1,5 @@
 lazy val akkaHttpVersion = "10.6.3"
-lazy val akkaVersion = "2.9.4"
+lazy val akkaVersion = "2.9.6"
 lazy val circeVersion = "0.14.8"
 
 resolvers += "Akka library repository".at("https://repo.akka.io/maven")

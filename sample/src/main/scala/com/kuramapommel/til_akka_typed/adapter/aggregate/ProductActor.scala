@@ -14,8 +14,7 @@ import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import com.kuramapommel.til_akka_typed.usecase.EditProductUseCaseImpl
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.util.Success
+import scala.concurrent.Promise
 
 /** 商品アクター. */
 object ProductActor:
@@ -44,23 +43,36 @@ object ProductActor:
                     ProductId(persitenceId.id),
                   repository
                 )
-              usecase
-                .execute(name, imageUrl, price, description): event =>
-                  event.pipeToSelf(replyTo)
-              Effect.none
+
+              val promise = Promise[ProductEvent]
+              val result = for
+                _ <- (usecase
+                  .execute(name, imageUrl, price, description): event =>
+                    promise.success(event))
+                  .value
+                event <- promise.future
+              yield Effect
+                .persist[ProductEvent, Option[Product]](event)
+                .thenReply(replyTo): _ =>
+                  event
+              Effect
+                .asyncReply(result)
 
             case Edit(id, replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
               val usecase = EditProductUseCaseImpl(repository)
-              usecase
-                .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
-                  event.pipeToSelf(replyTo)
-              Effect.none
-
-            case Persist(event, replyTo) =>
-              Effect
-                .persist(event)
+              val promise = Promise[ProductEvent]
+              val result = for
+                _ <- (usecase
+                  .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
+                    promise.success(event))
+                  .value
+                event <- promise.future
+              yield Effect
+                .persist[ProductEvent, Option[Product]](event)
                 .thenReply(replyTo): _ =>
                   event
+              Effect
+                .asyncReply(result)
 
       val eventHandler: (Option[Product], ProductEvent) => Option[Product] =
         case (None, ProductEvent.Registered(productId, name, imageUrl, price, description)) =>
@@ -84,31 +96,8 @@ object ProductActor:
         eventHandler = eventHandler
       )
 
-  /** プロダクトイベントの拡張定義 */
-  extension (event: ProductEvent)
-    /**
-     * 自身にイベントを送信する
-     *
-     * @param replyTo
-     *   返信先アクター
-     * @param ctx
-     *   コンテキスト
-     */
-    def pipeToSelf(replyTo: ActorRef[ProductEvent])(using ctx: ActorContext[Command]) =
-      ctx.pipeToSelf(Future.successful(event)):
-        case Success(event) => Command.Persist(event, replyTo)
-        case _              => ???
-
 /** 商品アクターコマンド */
 enum Command:
-  /**
-   * 永続化
-   * @param event
-   *   商品集約イベント
-   * @param replyTo
-   *   返信先
-   */
-  case Persist(event: ProductEvent, replyTo: ActorRef[ProductEvent])
 
   /**
    * 登録.

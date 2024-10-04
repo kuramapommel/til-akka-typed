@@ -36,7 +36,7 @@ class ProductPersistenceActorSpec extends ScalaTestWithActorTestKit with AnyWord
         )
       )
 
-    "Edit(productId, Some(\"商品\", sender)) コマンドを受信し処理が成功したとき Edited イベントが発生する" in:
+    "Edit コマンドを受信し処理が成功したとき Edited イベントが発生する" in:
       val productId = ProductId(UUID.randomUUID().toString())
       val actor = testKit.spawn(ProductActor: () =>
         PersistenceId.ofUniqueId(productId.value))
