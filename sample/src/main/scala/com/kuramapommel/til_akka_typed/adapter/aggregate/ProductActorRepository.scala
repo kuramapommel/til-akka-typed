@@ -1,6 +1,5 @@
 package com.kuramapommel.til_akka_typed.adapter.aggregate
 
-import akka.actor.typed.scaladsl.ActorContext
 import cats.data.EitherT
 import com.kuramapommel.til_akka_typed.domain.model.Product
 import com.kuramapommel.til_akka_typed.domain.model.ProductRepository
@@ -15,12 +14,10 @@ object ProductActorRepository:
    * 商品アクターリポジトリの生成.
    * @param productMaybe
    *   商品エンティティのオプション
-   * @param ctx
-   *   アクターコンテキスト
    * @return
    *   商品アクターリポジトリ
    */
-  def apply(productMaybe: Option[Product])(using ctx: ActorContext[Command]): ProductRepository =
+  def apply(productMaybe: Option[Product]): ProductRepository =
     new ProductRepository:
       override def findById(id: ProductId): ExecutionContext ?=> EitherT[Future, ProductError, Product] =
         productMaybe match

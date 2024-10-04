@@ -2,18 +2,20 @@ package com.kuramapommel.til_akka_typed.adapter.aggregate
 
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.Behaviors
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.Effect
 import akka.persistence.typed.scaladsl.EventSourcedBehavior
+import cats.data.EitherT
 import com.kuramapommel.til_akka_typed.domain.model.Product
 import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
+import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import com.kuramapommel.til_akka_typed.usecase.EditProductUseCaseImpl
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.concurrent.Promise
 
 /** 商品アクター. */
@@ -26,68 +28,53 @@ object ProductActor:
    */
   def apply(createPersistenceId: () => PersistenceId): Behavior[Command] =
     import Command.*
-    Behaviors.setup[Command]: context =>
-      given ctx: ActorContext[Command] = context
+    val eventHandler: (Option[Product], ProductEvent) => Option[Product] =
+      case (None, ProductEvent.Registered(productId, name, imageUrl, price, description)) =>
+        Some(Product(productId, name, imageUrl, price, description))
+
+      case (Some(product), ProductEvent.Edited(productId, name, imageUrl, price, description)) =>
+        Some(
+          product.copy(
+            name = name.getOrElse(product.name),
+            imageUrl = imageUrl.getOrElse(product.imageUrl),
+            price = price.getOrElse(product.price),
+            description = description.getOrElse(product.description)
+          )
+        )
+      case _ => ???
+
+    Behaviors.setup[Command]: ctx =>
       given ec: ExecutionContext = ctx.system.executionContext
 
       val persitenceId = createPersistenceId()
+      val idGenerator = ProductIdGenerator: () =>
+        ProductId(persitenceId.id)
+
       val commandHandler: (Option[Product], Command) => Effect[ProductEvent, Option[Product]] =
         (productMaybe, command) =>
           val repository = ProductActorRepository(productMaybe)
-
-          command match
+          val promise = Promise[ProductEvent]
+          val (usecase, replyTo) = command match
             case Register(name, imageUrl, price, description, replyTo) =>
-              val usecase =
-                RegisterProductUseCaseImpl(
-                  ProductIdGenerator: () =>
-                    ProductId(persitenceId.id),
-                  repository
-                )
-
-              val promise = Promise[ProductEvent]
-              val result = for
-                _ <- (usecase
-                  .execute(name, imageUrl, price, description): event =>
-                    promise.success(event))
-                  .value
-                event <- promise.future
-              yield Effect
-                .persist[ProductEvent, Option[Product]](event)
-                .thenReply(replyTo): _ =>
-                  event
-              Effect
-                .asyncReply(result)
-
+              RegisterProductUseCaseImpl(idGenerator, repository)
+                .execute(name, imageUrl, price, description)
+                .tuple(replyTo)
             case Edit(id, replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
-              val usecase = EditProductUseCaseImpl(repository)
-              val promise = Promise[ProductEvent]
-              val result = for
-                _ <- (usecase
-                  .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt): event =>
-                    promise.success(event))
-                  .value
-                event <- promise.future
-              yield Effect
-                .persist[ProductEvent, Option[Product]](event)
-                .thenReply(replyTo): _ =>
-                  event
-              Effect
-                .asyncReply(result)
+              EditProductUseCaseImpl(repository)
+                .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt)
+                .tuple(replyTo)
 
-      val eventHandler: (Option[Product], ProductEvent) => Option[Product] =
-        case (None, ProductEvent.Registered(productId, name, imageUrl, price, description)) =>
-          Some(Product(productId, name, imageUrl, price, description))
-
-        case (Some(product), ProductEvent.Edited(productId, name, imageUrl, price, description)) =>
-          Some(
-            product.copy(
-              name = name.getOrElse(product.name),
-              imageUrl = imageUrl.getOrElse(product.imageUrl),
-              price = price.getOrElse(product.price),
-              description = description.getOrElse(product.description)
-            )
-          )
-        case _ => ???
+          val result = for
+            result <- usecase(promise.success).value
+            event <- result match
+              case Right(_)    => promise.future
+              case Left(error) => ???
+          yield Effect
+            .persist[ProductEvent, Option[Product]](event)
+            .thenReply(replyTo): _ =>
+              event
+          Effect
+            .asyncReply(result)
 
       EventSourcedBehavior[Command, ProductEvent, Option[Product]](
         persistenceId = persitenceId,
@@ -95,6 +82,19 @@ object ProductActor:
         commandHandler = commandHandler,
         eventHandler = eventHandler
       )
+
+  /** カリー化されたユースケース実行の拡張 */
+  extension (curriedExecution: (ProductEvent => Unit) => EitherT[Future, ProductError, Unit])
+    /**
+     * タプル化
+     *
+     * @param replyTo
+     *  タプル化するアクター
+     */
+    def tuple(
+        replyTo: ActorRef[ProductEvent]
+    ): ((ProductEvent => Unit) => EitherT[Future, ProductError, Unit], ActorRef[ProductEvent]) =
+      (curriedExecution, replyTo)
 
 /** 商品アクターコマンド */
 enum Command:
