@@ -3,6 +3,7 @@ package com.kuramapommel.til_akka_typed.adapter.aggregate
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
+import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.Effect
 import akka.persistence.typed.scaladsl.EventSourcedBehavior
@@ -20,6 +21,10 @@ import scala.concurrent.Promise
 
 /** 商品アクター. */
 object ProductActor:
+
+  /** クラスタ全体での一意性を担保するキー */
+  val typeKey: EntityTypeKey[Command] = EntityTypeKey[Command]("ProductActor")
+
   /**
    * アクター生成
    *
