@@ -53,7 +53,7 @@ object ProductActor:
 
       val persitenceId = createPersistenceId()
       val idGenerator = ProductIdGenerator: () =>
-        ProductId(persitenceId.id)
+        ProductId(persitenceId.entityId)
 
       val commandHandler: (Option[Product], Command) => Effect[ProductEvent, Option[Product]] =
         (productMaybe, command) =>
