@@ -1,20 +1,15 @@
 package com.kuramapommel.til_akka_typed.adapter.aggregate
 
-import akka.actor.testkit.typed.scaladsl.ActorTestKit
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.AskPattern.*
 import akka.persistence.typed.PersistenceId
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import io.github.iltotore.iron.*
 import java.util.UUID
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
-class ProductPersistenceActorSpec extends AnyWordSpecLike with BeforeAndAfterAll with Matchers:
-  lazy val testKit = ActorTestKit()
-  override def afterAll(): Unit =
-    testKit.shutdownTestKit()
+class ProductPersistenceActorSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike:
 
   "ProductPersistenceActor" should:
     "Register コマンドを受信し処理が成功したとき Registered イベントが発生する" in:
