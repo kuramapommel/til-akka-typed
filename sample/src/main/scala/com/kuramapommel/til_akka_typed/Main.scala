@@ -4,9 +4,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
-import akka.persistence.typed.PersistenceId
-import com.fasterxml.uuid.Generators
-import com.kuramapommel.til_akka_typed.adapter.aggregate.ProductActor
+import com.kuramapommel.til_akka_typed.adapter.aggregate.ShardedProductActor
 import com.kuramapommel.til_akka_typed.adapter.routes.ProductRoutes
 import scala.util.Failure
 import scala.util.Success
@@ -33,18 +31,14 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
   val rootBehavior = Behaviors.setup[Nothing]: context =>
     import context.system
     val productActor =
-      context.spawn(
-        ProductActor: () =>
-          PersistenceId.ofUniqueId(Generators.timeBasedEpochRandomGenerator().generate().toString()),
-        "ProductActor"
-      )
+      context.spawn(ShardedProductActor(), "ProductActor")
     context.watch(productActor)
 
     val routes = new ProductRoutes(productActor)
     startHttpServer(routes.routes)
 
     Behaviors.empty
-  val system = ActorSystem[Nothing](rootBehavior, "HelloAkkaHttpServer")
+  val system = ActorSystem[Nothing](rootBehavior, "ClusterSystem")
   // #server-bootstrapping
 
 //#main-class

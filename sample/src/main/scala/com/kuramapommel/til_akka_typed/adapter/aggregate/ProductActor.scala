@@ -59,6 +59,7 @@ object ProductActor:
         (productMaybe, command) =>
           val repository = ProductActorRepository(productMaybe)
           val promise = Promise[ProductEvent]
+          println(s"command: $command")
           val (usecase, replyTo) = command match
             case Register(name, imageUrl, price, description, replyTo) =>
               RegisterProductUseCaseImpl(idGenerator, repository)
