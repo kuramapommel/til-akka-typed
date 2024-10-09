@@ -4,6 +4,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
+import com.fasterxml.uuid.Generators
 import com.kuramapommel.til_akka_typed.adapter.aggregate.ShardedProductActor
 import com.kuramapommel.til_akka_typed.adapter.routes.ProductRoutes
 import scala.util.Failure
@@ -31,7 +32,11 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
   val rootBehavior = Behaviors.setup[Nothing]: context =>
     import context.system
     val productActor =
-      context.spawn(ShardedProductActor(), "ProductActor")
+      context.spawn(
+        ShardedProductActor: () =>
+          Generators.timeBasedEpochRandomGenerator().generate().toString(),
+        "ShardedProductActor"
+      )
     context.watch(productActor)
 
     val routes = new ProductRoutes(productActor)

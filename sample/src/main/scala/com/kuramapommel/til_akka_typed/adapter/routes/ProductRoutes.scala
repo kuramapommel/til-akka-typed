@@ -151,7 +151,7 @@ class ProductRoutes(productActor: ActorRef[Command])(using system: ActorSystem[?
                     case Some(Left(message))   => Left(message)
                     case None                  => Right(None)
                 yield Command.Edit(
-                  productId,
+                  Some(productId),
                   _,
                   product.name,
                   imageUrlMaybe,

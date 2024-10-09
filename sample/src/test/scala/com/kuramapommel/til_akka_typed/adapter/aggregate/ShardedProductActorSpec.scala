@@ -1,20 +1,36 @@
 package com.kuramapommel.til_akka_typed.adapter.aggregate
 
+import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import akka.persistence.typed.PersistenceId
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
+import com.typesafe.config.ConfigFactory
 import io.github.iltotore.iron.*
 import java.util.UUID
 import org.scalatest.wordspec.AnyWordSpecLike
 
-class ProductPersistenceActorSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike:
+class ShardedProductActorSpec
+    extends ScalaTestWithActorTestKit(
+      ActorTestKit(
+        "ShardedProductActorSpec",
+        ConfigFactory.parseString(
+          """|
+             |akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
+             |akka.persistence.journal.inmem.class = "akka.persistence.journal.inmem.InmemJournal"
+             |akka.actor.provider = "cluster"
+             |akka.remote.artery.canonical.port = 25510
+             |akka.cluster.seed-nodes = ["akka://ShardedProductActorSpec@127.0.0.1:25510"]
+             |""".stripMargin
+        )
+      )
+    )
+      with AnyWordSpecLike:
 
-  "ProductPersistenceActor" should:
+  "ShardedProductActorSpec" should:
     "Register コマンドを受信し処理が成功したとき Registered イベントが発生する" in:
       val productId = ProductId(UUID.randomUUID().toString())
-      val actor = testKit.spawn(ProductActor: () =>
-        PersistenceId.ofUniqueId(productId.value))
+      val actor = testKit.spawn(ShardedProductActor: () =>
+        productId.value)
       val probe = testKit.createTestProbe[ProductEvent]()
 
       actor ! Command.Register(
@@ -37,8 +53,8 @@ class ProductPersistenceActorSpec extends ScalaTestWithActorTestKit with AnyWord
 
     "Edit コマンドを受信し処理が成功したとき Edited イベントが発生する" in:
       val productId = ProductId(UUID.randomUUID().toString())
-      val actor = testKit.spawn(ProductActor: () =>
-        PersistenceId.ofUniqueId(productId.value))
+      val actor = testKit.spawn(ShardedProductActor: () =>
+        productId.value)
       val probe = testKit.createTestProbe[ProductEvent]()
 
       actor ! Command.Register(

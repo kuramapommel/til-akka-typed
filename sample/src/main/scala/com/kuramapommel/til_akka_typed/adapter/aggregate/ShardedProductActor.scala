@@ -9,21 +9,18 @@ import akka.cluster.sharding.typed.scaladsl.Entity
 import akka.persistence.typed.PersistenceId
 
 object ShardedProductActor:
-  def apply()(using system: ActorSystem[?]) =
-    Behaviors.setup[Command]: ctx =>
-      import Command.*
-      val sharding = ClusterSharding(system)
-      val shardregion: ActorRef[ShardingEnvelope[Command]] =
-        sharding.init(
-          Entity(ProductActor.typeKey)(createBehavior =
-            entityContext => ProductActor(() => PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId))
-          )
+  def apply(createIdValue: () => String)(using system: ActorSystem[?]) =
+    val sharding = ClusterSharding(system)
+    val shardregion: ActorRef[ShardingEnvelope[Command]] =
+      sharding.init(
+        Entity(ProductActor.typeKey)(createBehavior =
+          entityContext =>
+            ProductActor: () =>
+              PersistenceId(entityContext.entityTypeKey.name, entityContext.entityId)
         )
-
-      Behaviors.receiveMessage:
-        case register: Register =>
-          shardregion ! ShardingEnvelope("counter-1", register)
-          Behaviors.same
-        case edit: Edit =>
-          shardregion ! ShardingEnvelope("counter-1", edit)
-          Behaviors.same
+      )
+    Behaviors.receiveMessage[Command]:
+      case message =>
+        val entityId = message.id.getOrElse(createIdValue())
+        shardregion ! ShardingEnvelope(entityId, message)
+        Behaviors.same

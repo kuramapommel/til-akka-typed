@@ -59,16 +59,16 @@ object ProductActor:
         (productMaybe, command) =>
           val repository = ProductActorRepository(productMaybe)
           val promise = Promise[ProductEvent]
-          println(s"command: $command")
           val (usecase, replyTo) = command match
             case Register(name, imageUrl, price, description, replyTo) =>
               RegisterProductUseCaseImpl(idGenerator, repository)
                 .execute(name, imageUrl, price, description)
                 .tuple(replyTo)
-            case Edit(id, replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
+            case Edit(Some(id), replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
               EditProductUseCaseImpl(repository)
                 .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt)
                 .tuple(replyTo)
+            case _ => ???
 
           val result = for
             result <- usecase(promise.success).value
@@ -104,6 +104,8 @@ object ProductActor:
 
 /** 商品アクターコマンド */
 enum Command:
+
+  val id: Option[String] = None
 
   /**
    * 登録.
@@ -142,7 +144,7 @@ enum Command:
    *   商品説明
    */
   case Edit(
-      id: String,
+      override val id: Option[String],
       replyTo: ActorRef[ProductEvent],
       nameOpt: Option[String] = None,
       imageUrlOpt: Option[ImageURL] = None,
