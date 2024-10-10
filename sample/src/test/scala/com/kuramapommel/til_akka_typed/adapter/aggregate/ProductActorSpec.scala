@@ -7,8 +7,10 @@ import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import io.github.iltotore.iron.*
 import java.util.UUID
 import org.scalatest.wordspec.AnyWordSpecLike
+import scala.concurrent.ExecutionContext
 
 class ProductPersistenceActorSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike:
+  given ec: ExecutionContext = testKit.system.executionContext
 
   "ProductPersistenceActor" should:
     "Register コマンドを受信し処理が成功したとき Registered イベントが発生する" in:

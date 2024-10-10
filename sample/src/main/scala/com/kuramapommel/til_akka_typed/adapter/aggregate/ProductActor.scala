@@ -2,7 +2,6 @@ package com.kuramapommel.til_akka_typed.adapter.aggregate
 
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
 import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.Effect
@@ -31,7 +30,7 @@ object ProductActor:
    * @param createPersistenceId
    *   Persistence Id 生成
    */
-  def apply(createPersistenceId: () => PersistenceId): Behavior[Command] =
+  def apply(createPersistenceId: () => PersistenceId): ExecutionContext ?=> Behavior[Command] =
     import Command.*
     val eventHandler: (Option[Product], ProductEvent) => Option[Product] =
       case (None, ProductEvent.Registered(productId, name, imageUrl, price, description)) =>
@@ -48,46 +47,43 @@ object ProductActor:
         )
       case _ => ???
 
-    Behaviors.setup[Command]: ctx =>
-      given ec: ExecutionContext = ctx.system.executionContext
+    val persitenceId = createPersistenceId()
+    val idGenerator = ProductIdGenerator: () =>
+      ProductId(persitenceId.entityId)
 
-      val persitenceId = createPersistenceId()
-      val idGenerator = ProductIdGenerator: () =>
-        ProductId(persitenceId.entityId)
+    val commandHandler: (Option[Product], Command) => Effect[ProductEvent, Option[Product]] =
+      (productMaybe, command) =>
+        val repository = ProductActorRepository(productMaybe)
+        val promise = Promise[ProductEvent]
+        val (usecase, replyTo) = command match
+          case Register(name, imageUrl, price, description, replyTo) =>
+            RegisterProductUseCaseImpl(idGenerator, repository)
+              .execute(name, imageUrl, price, description)
+              .tuple(replyTo)
+          case Edit(Some(id), replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
+            EditProductUseCaseImpl(repository)
+              .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt)
+              .tuple(replyTo)
+          case _ => ???
 
-      val commandHandler: (Option[Product], Command) => Effect[ProductEvent, Option[Product]] =
-        (productMaybe, command) =>
-          val repository = ProductActorRepository(productMaybe)
-          val promise = Promise[ProductEvent]
-          val (usecase, replyTo) = command match
-            case Register(name, imageUrl, price, description, replyTo) =>
-              RegisterProductUseCaseImpl(idGenerator, repository)
-                .execute(name, imageUrl, price, description)
-                .tuple(replyTo)
-            case Edit(Some(id), replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
-              EditProductUseCaseImpl(repository)
-                .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt)
-                .tuple(replyTo)
-            case _ => ???
+        val result = for
+          result <- usecase(promise.success).value
+          event <- result match
+            case Right(_)    => promise.future
+            case Left(error) => ???
+        yield Effect
+          .persist[ProductEvent, Option[Product]](event)
+          .thenReply(replyTo): _ =>
+            event
+        Effect
+          .asyncReply(result)
 
-          val result = for
-            result <- usecase(promise.success).value
-            event <- result match
-              case Right(_)    => promise.future
-              case Left(error) => ???
-          yield Effect
-            .persist[ProductEvent, Option[Product]](event)
-            .thenReply(replyTo): _ =>
-              event
-          Effect
-            .asyncReply(result)
-
-      EventSourcedBehavior[Command, ProductEvent, Option[Product]](
-        persistenceId = persitenceId,
-        emptyState = None,
-        commandHandler = commandHandler,
-        eventHandler = eventHandler
-      )
+    EventSourcedBehavior[Command, ProductEvent, Option[Product]](
+      persistenceId = persitenceId,
+      emptyState = None,
+      commandHandler = commandHandler,
+      eventHandler = eventHandler
+    )
 
   /** カリー化されたユースケース実行の拡張 */
   extension (curriedExecution: (ProductEvent => Unit) => EitherT[Future, ProductError, Unit])

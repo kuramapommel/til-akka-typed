@@ -8,6 +8,7 @@ import com.typesafe.config.ConfigFactory
 import io.github.iltotore.iron.*
 import java.util.UUID
 import org.scalatest.wordspec.AnyWordSpecLike
+import scala.concurrent.ExecutionContext
 
 class ShardedProductActorSpec
     extends ScalaTestWithActorTestKit(
@@ -25,6 +26,7 @@ class ShardedProductActorSpec
       )
     )
       with AnyWordSpecLike:
+  given ec: ExecutionContext = testKit.system.executionContext
 
   "ShardedProductActorSpec" should:
     "Register コマンドを受信し処理が成功したとき Registered イベントが発生する" in:

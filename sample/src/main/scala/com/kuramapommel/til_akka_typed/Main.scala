@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Route
 import com.fasterxml.uuid.Generators
 import com.kuramapommel.til_akka_typed.adapter.aggregate.ShardedProductActor
 import com.kuramapommel.til_akka_typed.adapter.routes.ProductRoutes
+import scala.concurrent.ExecutionContext
 import scala.util.Failure
 import scala.util.Success
 
@@ -31,6 +32,7 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
   // #server-bootstrapping
   val rootBehavior = Behaviors.setup[Nothing]: context =>
     import context.system
+    given ec: ExecutionContext = context.system.executionContext
     val productActor =
       context.spawn(
         ShardedProductActor: () =>
