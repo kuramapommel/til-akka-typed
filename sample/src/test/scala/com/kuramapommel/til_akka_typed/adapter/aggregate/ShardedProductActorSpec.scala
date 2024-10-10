@@ -19,8 +19,9 @@ class ShardedProductActorSpec
              |akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
              |akka.persistence.journal.inmem.class = "akka.persistence.journal.inmem.InmemJournal"
              |akka.actor.provider = "cluster"
+             |akka.remote.artery.canonical.hostname = "0.0.0.0"
              |akka.remote.artery.canonical.port = 25510
-             |akka.cluster.seed-nodes = ["akka://ShardedProductActorSpec@127.0.0.1:25510"]
+             |akka.cluster.seed-nodes = ["akka://ShardedProductActorSpec@0.0.0.0:25510"]
              |""".stripMargin
         )
       )
