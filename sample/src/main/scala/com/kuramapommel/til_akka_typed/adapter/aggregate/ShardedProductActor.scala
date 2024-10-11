@@ -10,7 +10,16 @@ import akka.cluster.sharding.typed.scaladsl.Entity
 import akka.persistence.typed.PersistenceId
 import scala.concurrent.ExecutionContext
 
+/** 商品アクターのシャードリージョン */
 object ShardedProductActor:
+  /**
+   * アクター生成
+   *
+   * @param createIdValue
+   *  Entity Id の String 値生成
+   * @param system
+   *  アクターシステム
+   */
   def apply(createIdValue: () => String)(using system: ActorSystem[?]): ExecutionContext ?=> Behavior[Command] =
     val sharding = ClusterSharding(system)
     val shardregion: ActorRef[ShardingEnvelope[Command]] =
