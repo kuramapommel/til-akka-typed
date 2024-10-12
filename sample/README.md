@@ -1,13 +1,26 @@
-# Sample Akka HTTP server
+# Akka Typed の学習用プロジェクト
 
-## Interacting with the sample
+## サーバの起動
 
-After starting the sample with `sbt run` the following requests can be made:
+### sbt を使用
 
-Create a product:
+1. `sbt run` コマンドでサーバを起動
 
-    curl -XPOST http://localhost:8080/product -d '{"name": "test", "imageUrl": "https://placehold.jp/111111/777777/150x150.png", "price": 100, "description": "test"}' -H "Content-Type:application/json"
+### java -jar を使用
 
-Edit a user:
+1. `sbt assembly` コマンドで FAT jar ファイルを作成
+2. `java -jar ./target/scala-3.4.3/til-akka-typed.jar` コマンドでサーバを起動
 
-    curl -XPOST http://localhost:8080/product/:productId -d '{"name": "test-product", "imageUrl": "https://placehold.jp/777777/111111/150x150.png", "price": 200, "description": "test-description"}' -H "Content-Type:application/json"
+## E2E
+
+商品登録 API
+
+```sh
+curl -XPOST http://localhost:8080/product -d '{"name": "test", "imageUrl": "https://placehold.jp/111111/777777/150x150.png", "price": 100, "description": "test"}' -H "Content-Type:application/json"
+```
+
+商品編集 API
+
+```sh
+curl -XPOST http://localhost:8080/product/:productId -d '{"name": "test-product", "imageUrl": "https://placehold.jp/777777/111111/150x150.png", "price": 200, "description": "test-description"}' -H "Content-Type:application/json"
+```

@@ -10,6 +10,18 @@ resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 // sbt tasks, consider https://github.com/spray/sbt-revolver/
 fork := true
 
+// module は Java SE 9 以降で導入されたものであり、Java SE 8 準拠の場合は認識しないため破棄（discard）してしまって良い
+// 破棄しなければ deduplicate エラーを起こす
+// 参照： https://qiita.com/yokra9/items/1e72646623f962ce02ee
+assembly / assemblyMergeStrategy := {
+  case "module-info.class" => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (assembly / assemblyMergeStrategy).value
+    oldStrategy(x)
+}
+assembly / assemblyJarName := "til-akka-typed.jar" // jar ファイル名を指定
+assembly / mainClass := Some("com.kuramapommel.til_akka_typed.main") // mainClass を指定
+
 lazy val root = (project in file(".")).settings(
   inThisBuild(
     List(
