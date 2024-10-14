@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  node1:
+    image: til-akka-typed
+    container_name: node1
+    platform: linux/amd64
+    ports:
+      - "8080:8080"

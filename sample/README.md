@@ -11,6 +11,13 @@
 1. `sbt assembly` コマンドで FAT jar ファイルを作成
 2. `java -jar ./target/scala-3.4.3/til-akka-typed.jar` コマンドでサーバを起動
 
+### docker を使用
+
+1. `sbt assembly` コマンドで FAT jar ファイルを作成
+2. `docker build --platform linux/amd64 -t til-akka-typed .` コマンドで docker image を作成
+   - Apple Silicon の場合 `--platform linux/amd64` を指定
+3. `docker-compose up` コマンドでコンテナを起動
+
 ## E2E
 
 商品登録 API
