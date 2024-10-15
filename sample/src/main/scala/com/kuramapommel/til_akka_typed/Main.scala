@@ -4,6 +4,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
+import akka.util.Timeout
 import com.fasterxml.uuid.Generators
 import com.kuramapommel.til_akka_typed.adapter.aggregate.ShardedProductActor
 import com.kuramapommel.til_akka_typed.adapter.routes.ProductRoutes
@@ -18,7 +19,9 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
   // Akka HTTP still needs a classic ActorSystem to start
   import system.executionContext
 
-  val futureBinding = Http().newServerAt("0.0.0.0", 8080).bind(routes)
+  val host = system.settings.config.getString("til-akka-typed.server.host")
+  val port = system.settings.config.getInt("til-akka-typed.server.port")
+  val futureBinding = Http().newServerAt(host, port).bind(routes)
   futureBinding.onComplete:
     case Success(binding) =>
       val address = binding.localAddress
@@ -33,6 +36,9 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
   val rootBehavior = Behaviors.setup[Nothing]: context =>
     import context.system
     given ec: ExecutionContext = context.system.executionContext
+    given timeout: Timeout =
+      Timeout.create(context.system.settings.config.getDuration("til-akka-typed.routes.ask-timeout"))
+
     val productActor =
       context.spawn(
         ShardedProductActor: () =>

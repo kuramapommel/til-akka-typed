@@ -7,6 +7,7 @@ import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model.*
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.persistence.typed.PersistenceId
+import akka.util.Timeout
 import com.kuramapommel.til_akka_typed.adapter.aggregate.ProductActor
 import com.kuramapommel.til_akka_typed.adapter.routes.ProductRoutes.*
 import java.util.UUID
@@ -17,6 +18,8 @@ import org.scalatest.wordspec.AnyWordSpec
 class ProductRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with ScalatestRouteTest:
   lazy val testKit = ActorTestKit()
   given typedSystem: ActorSystem[?] = testKit.system
+  given timeout: Timeout =
+    Timeout.create(testKit.system.settings.config.getDuration("til-akka-typed.routes.ask-timeout"))
 
   "ProductRoutes" should:
     "商品を追加することができる (POST /product)" in:
