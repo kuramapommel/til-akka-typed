@@ -5,5 +5,9 @@ services:
     image: til-akka-typed
     container_name: node1
     platform: linux/amd64
+    environment:
+      SEED_NODES.0: "akka://ClusterSystem@node1:2551"
+      SEED_HOST: "node1"
+      SEED_PORT: 2551
     ports:
       - "8080:8080"
