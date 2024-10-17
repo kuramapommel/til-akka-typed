@@ -1,14 +1,18 @@
 version: "3.8"
 
+# アンカーを用いてすべてのコンテナに共通の環境変数をまとめて定義する
+x-environment: &seed-nodes-environment
+  SEED_NODES.0: "akka://ClusterSystem@node1:2551"
+  SEED_NODES.1: "akka://ClusterSystem@node2:2552"
+  SEED_NODES.2: "akka://ClusterSystem@node3:2553"
+
 services:
   node1:
     image: til-akka-typed
     container_name: node1
     platform: linux/amd64
     environment:
-      SEED_NODES.0: "akka://ClusterSystem@node1:2551"
-      SEED_NODES.1: "akka://ClusterSystem@node2:2552"
-      SEED_NODES.2: "akka://ClusterSystem@node3:2553"
+      <<: *seed-nodes-environment
       SEED_HOST: "node1"
       SEED_PORT: 2551
       HTTP_PORT: 8080
@@ -22,9 +26,7 @@ services:
     container_name: node2
     platform: linux/amd64
     environment:
-      SEED_NODES.0: "akka://ClusterSystem@node1:2551"
-      SEED_NODES.1: "akka://ClusterSystem@node2:2552"
-      SEED_NODES.2: "akka://ClusterSystem@node3:2553"
+      <<: *seed-nodes-environment
       SEED_HOST: "node2"
       SEED_PORT: 2552
       HTTP_PORT: 8081
@@ -38,9 +40,7 @@ services:
     container_name: node3
     platform: linux/amd64
     environment:
-      SEED_NODES.0: "akka://ClusterSystem@node1:2551"
-      SEED_NODES.1: "akka://ClusterSystem@node2:2552"
-      SEED_NODES.2: "akka://ClusterSystem@node3:2553"
+      <<: *seed-nodes-environment
       SEED_HOST: "node3"
       SEED_PORT: 2553
       HTTP_PORT: 8082
