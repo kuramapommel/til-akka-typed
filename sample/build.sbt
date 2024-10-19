@@ -15,7 +15,8 @@ fork := true
 // 破棄しなければ deduplicate エラーを起こす
 // 参照： https://qiita.com/yokra9/items/1e72646623f962ce02ee
 assembly / assemblyMergeStrategy := {
-  case "module-info.class" => MergeStrategy.discard
+  case PathList(ps @ _*) if ps.last endsWith "module-info.class" =>
+    MergeStrategy.discard
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
@@ -47,6 +48,7 @@ lazy val root = (project in file(".")).settings(
     "com.typesafe.akka" %% "akka-cluster-sharding-typed" % akkaVersion,
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
     "com.typesafe.akka" %% "akka-pki" % akkaVersion,
+    "com.typesafe.akka" %% "akka-serialization-jackson" % akkaVersion,
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion,

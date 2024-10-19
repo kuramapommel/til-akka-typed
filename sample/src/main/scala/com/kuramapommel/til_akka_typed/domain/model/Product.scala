@@ -1,5 +1,6 @@
 package com.kuramapommel.til_akka_typed.domain.model
 
+import akka.serialization.jackson.CborSerializable
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 
 /**
@@ -18,7 +19,8 @@ import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
  * @param description
  *   商品説明
  */
-final case class Product(id: ProductId, name: String, imageUrl: ImageURL, price: Int, description: String):
+final case class Product(id: ProductId, name: String, imageUrl: ImageURL, price: Int, description: String)
+    extends CborSerializable:
 
   /**
    * 商品情報の編集.

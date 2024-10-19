@@ -4,8 +4,10 @@ import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
 import akka.persistence.typed.PersistenceId
+import akka.persistence.typed.SnapshotSelectionCriteria
 import akka.persistence.typed.scaladsl.Effect
 import akka.persistence.typed.scaladsl.EventSourcedBehavior
+import akka.serialization.jackson.CborSerializable
 import cats.data.EitherT
 import com.kuramapommel.til_akka_typed.domain.model.Product
 import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
@@ -83,7 +85,11 @@ object ProductActor:
       emptyState = None,
       commandHandler = commandHandler,
       eventHandler = eventHandler
-    )
+    ).snapshotWhen:
+      case (_, _, _) => true
+    .withSnapshotSelectionCriteria(
+        SnapshotSelectionCriteria.latest // 最新のスナップショットから復元
+      )
 
   /** カリー化されたユースケース実行の拡張 */
   extension (curriedExecution: (ProductEvent => Unit) => EitherT[Future, ProductError, Unit])
@@ -99,7 +105,7 @@ object ProductActor:
       (curriedExecution, replyTo)
 
 /** 商品アクターコマンド */
-enum Command:
+enum Command extends CborSerializable:
 
   val id: Option[String] = None
 

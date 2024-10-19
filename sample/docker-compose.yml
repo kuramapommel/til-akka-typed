@@ -18,6 +18,8 @@ services:
       HTTP_PORT: 8080
     ports:
       - "8080:8080"
+    volumes:
+      - "./target/snapshots:/target/snapshots"
     networks:
       - backend-network
 
@@ -32,6 +34,8 @@ services:
       HTTP_PORT: 8081
     ports:
       - "8081:8081"
+    volumes:
+      - "./target/snapshots:/target/snapshots"
     networks:
       - backend-network
 
@@ -46,6 +50,8 @@ services:
       HTTP_PORT: 8082
     ports:
       - "8082:8082"
+    volumes:
+      - "./target/snapshots:/target/snapshots"
     networks:
       - backend-network
 
