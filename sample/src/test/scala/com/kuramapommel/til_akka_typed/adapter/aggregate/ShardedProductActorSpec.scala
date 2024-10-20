@@ -6,9 +6,12 @@ import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
 import com.typesafe.config.ConfigFactory
 import io.github.iltotore.iron.*
+import java.io.File
 import java.util.UUID
+import org.apache.commons.io.FileUtils
 import org.scalatest.wordspec.AnyWordSpecLike
 import scala.concurrent.ExecutionContext
+import scala.util.Try
 
 class ShardedProductActorSpec
     extends ScalaTestWithActorTestKit(
@@ -18,6 +21,8 @@ class ShardedProductActorSpec
           """|
              |akka.persistence.journal.plugin = "akka.persistence.journal.inmem"
              |akka.persistence.journal.inmem.class = "akka.persistence.journal.inmem.InmemJournal"
+             |akka.persistence.snapshot-store.plugin = "akka.persistence.snapshot-store.local"
+             |akka.persistence.snapshot-store.local.dir = "target/test/snapshots"
              |akka.actor.provider = "cluster"
              |akka.remote.artery.canonical.hostname = "0.0.0.0"
              |akka.remote.artery.canonical.port = 25510
@@ -27,6 +32,11 @@ class ShardedProductActorSpec
       )
     )
       with AnyWordSpecLike:
+
+  override protected def afterAll() =
+    Try(FileUtils.deleteDirectory(new File("target/test/snapshots")))
+    super.afterAll()
+
   given ec: ExecutionContext = testKit.system.executionContext
 
   "ShardedProductActorSpec" should:

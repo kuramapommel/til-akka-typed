@@ -56,6 +56,7 @@ lazy val root = (project in file(".")).settings(
     "io.github.iltotore" %% "iron" % ironVersion,
     "io.github.iltotore" %% "iron-cats" % ironVersion,
     "com.fasterxml.uuid" % "java-uuid-generator" % "5.1.0",
+    "commons-io" % "commons-io" % "2.17.0",
 
     // test libraries
     "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
