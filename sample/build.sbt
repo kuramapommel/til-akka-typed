@@ -17,6 +17,7 @@ fork := true
 assembly / assemblyMergeStrategy := {
   case PathList(ps @ _*) if ps.last endsWith "module-info.class" =>
     MergeStrategy.discard
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard // META-INF内のファイルを無視
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
@@ -57,11 +58,13 @@ lazy val root = (project in file(".")).settings(
     "io.github.iltotore" %% "iron-cats" % ironVersion,
     "com.fasterxml.uuid" % "java-uuid-generator" % "5.1.0",
     "commons-io" % "commons-io" % "2.17.0",
+    "com.lightbend.akka" %% "akka-persistence-dynamodb" % "0.4.1",
 
     // test libraries
     "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
     "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaVersion % Test,
     "com.typesafe.akka" %% "akka-persistence-testkit" % akkaVersion % Test,
     "org.scalatest" %% "scalatest" % "3.2.12" % Test
-  )
+  ),
+  dependencyOverrides += "org.slf4j" % "slf4j-api" % "1.7.30"
 )

@@ -55,6 +55,17 @@ services:
     networks:
       - backend-network
 
+  dynamodb:
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb
+    expose:
+      - "8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    volumes:
+      - ./target/persistence/dynamodb/data:/data
+    networks:
+      - backend-network
+
 networks:
   backend-network:
     driver: bridge
