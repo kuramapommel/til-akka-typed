@@ -1,6 +1,5 @@
 package com.kuramapommel.til_akka_typed.domain
 
-import akka.serialization.jackson.CborSerializable
 import cats.data.EitherT
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.string.Match
@@ -55,7 +54,7 @@ package object model:
   object event:
 
     /** 商品イベント. */
-    enum ProductEvent extends CborSerializable:
+    enum ProductEvent:
       /**
        * 商品登録.
        * @param productId

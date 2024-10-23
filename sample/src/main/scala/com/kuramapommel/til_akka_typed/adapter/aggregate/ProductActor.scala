@@ -7,7 +7,6 @@ import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.SnapshotSelectionCriteria
 import akka.persistence.typed.scaladsl.Effect
 import akka.persistence.typed.scaladsl.EventSourcedBehavior
-import akka.serialization.jackson.CborSerializable
 import cats.data.EitherT
 import com.kuramapommel.til_akka_typed.domain.model.Product
 import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
@@ -105,7 +104,7 @@ object ProductActor:
       (curriedExecution, replyTo)
 
 /** 商品アクターコマンド */
-enum Command extends CborSerializable:
+enum Command:
 
   val id: Option[String] = None
 
