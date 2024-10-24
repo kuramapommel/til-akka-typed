@@ -5,10 +5,14 @@ x-environment: &seed-nodes-environment
   SEED_NODES.0: "akka://ClusterSystem@node1:2551"
   SEED_NODES.1: "akka://ClusterSystem@node2:2552"
   SEED_NODES.2: "akka://ClusterSystem@node3:2553"
+  PERSISTENCE_JOURNAL_CONF: "til-akka-typed.persistence.journal"
+  PERSISTENCE_SNAPSHOT_CONF: "til-akka-typed.persistence.snapshot-store"
 
 services:
   node1:
     image: til-akka-typed
+    env_file:
+      - ./.env/.env.test
     container_name: node1
     platform: linux/amd64
     environment:
@@ -25,6 +29,8 @@ services:
 
   node2:
     image: til-akka-typed
+    env_file:
+      - ./.env/.env.test
     container_name: node2
     platform: linux/amd64
     environment:
@@ -41,6 +47,8 @@ services:
 
   node3:
     image: til-akka-typed
+    env_file:
+      - ./.env/.env.test
     container_name: node3
     platform: linux/amd64
     environment:
@@ -63,6 +71,21 @@ services:
     command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
     volumes:
       - ./target/persistence/dynamodb/data:/data
+    networks:
+      - backend-network
+
+  dynamosetup:
+    image: infrastructureascode/aws-cli
+    env_file:
+      - ./.env/.env.test
+    environment:
+      LOCALSTACK_HOST: "dynamodb"
+      DDB_PORT: 8000
+    entrypoint: /scripts/dynamodb/entrypoint.sh
+    volumes:
+      - "./scripts/dynamodb:/scripts/dynamodb"
+    depends_on:
+      - dynamodb
     networks:
       - backend-network
 
