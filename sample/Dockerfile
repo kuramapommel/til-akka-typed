@@ -5,4 +5,4 @@ FROM adoptopenjdk:11-jre-hotspot
 COPY ./target/scala-3.4.3/til-akka-typed.jar /app/til-akka-typed.jar
 
 # アプリケーションをENTRYPOINTとして実行
-ENTRYPOINT ["java", "-jar", "/app/til-akka-typed.jar"]
+ENTRYPOINT ["java", "-Dconfig.resource=/persistence_docker-compose.conf", "-jar", "/app/til-akka-typed.jar"]

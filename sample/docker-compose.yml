@@ -5,8 +5,6 @@ x-environment: &seed-nodes-environment
   SEED_NODES.0: "akka://ClusterSystem@node1:2551"
   SEED_NODES.1: "akka://ClusterSystem@node2:2552"
   SEED_NODES.2: "akka://ClusterSystem@node3:2553"
-  PERSISTENCE_JOURNAL_CONF: "til-akka-typed.persistence.journal"
-  PERSISTENCE_SNAPSHOT_CONF: "til-akka-typed.persistence.snapshot-store"
 
 services:
   node1:
