@@ -18,6 +18,23 @@
    - Apple Silicon の場合 `--platform linux/amd64` を指定
 3. `docker-compose up` コマンドでコンテナを起動
 
+### minikube を使用
+
+1. `sbt assembly` コマンドで FAT jar ファイルを作成
+2. `docker build --platform linux/amd64 -t til-akka-typed .` コマンドで docker image を作成
+   - Apple Silicon の場合 `--platform linux/amd64` を指定
+3. `docker tag til-akka-typed:latest kuramapommel/til-akka-typed:latest` コマンドで docekr image にタグ付け
+4. `docker push kuramapommel/til-akka-typed:latest` コマンドで Docker Hub に docker image を送信
+5. `minikube start --driver=docker` で minikube クラスターを起動
+6. `kubectl apply -f kubernetes.yml` で pods を起動
+
+#### pods を削除 / minikube クラスターの停止
+
+1. `kubectl get pods` コマンドで pods 情報を確認
+2. `kubectl delete pod <pod-name>` コマンドで対象の pod を削除
+3. `kubectl delete -f kubernetes.yml` で pods を削除
+4. `minikube stop` で minikube クラスターを停止
+
 ## E2E
 
 商品登録 API

@@ -1,0 +1,103 @@
+# configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: akka-config
+data:
+  SEED_NODES: |
+    akka://ClusterSystem@node1:2551
+
+---
+# til-akka-typed-deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: akka-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: akka-node
+  template:
+    metadata:
+      labels:
+        app: akka-node
+    spec:
+      containers:
+        - name: node1
+          image: kuramapommel/til-akka-typed:latest
+          env:
+            - name: SEED_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SEED_PORT
+              value: "2551"
+            - name: HTTP_PORT
+              value: "8080"
+            - name: SEED_NODES
+              valueFrom:
+                configMapKeyRef:
+                  name: akka-config
+                  key: SEED_NODES
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /target/snapshots
+              name: snapshot-volume
+      volumes:
+        - name: snapshot-volume
+          hostPath:
+            path: /tmp/snapshots
+
+---
+# til-akka-typed-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: akka-service
+spec:
+  selector:
+    app: akka-node
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
+---
+# dynamodb-deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dynamodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dynamodb
+  template:
+    metadata:
+      labels:
+        app: dynamodb
+    spec:
+      containers:
+        - name: dynamodb-container
+          image: amazon/dynamodb-local:latest
+          command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-inMemory"]
+          ports:
+            - containerPort: 8000
+
+---
+# dynamodb-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamodb-service
+spec:
+  selector:
+    app: dynamodb
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
