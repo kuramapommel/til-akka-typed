@@ -12,7 +12,7 @@ services:
     env_file:
       - ./.env/.env.test
     container_name: node1
-    platform: linux/amd64
+    platform: linux/arm64
     environment:
       <<: *seed-nodes-environment
       SEED_HOST: "node1"
@@ -30,7 +30,7 @@ services:
     env_file:
       - ./.env/.env.test
     container_name: node2
-    platform: linux/amd64
+    platform: linux/arm64
     environment:
       <<: *seed-nodes-environment
       SEED_HOST: "node2"
@@ -48,7 +48,7 @@ services:
     env_file:
       - ./.env/.env.test
     container_name: node3
-    platform: linux/amd64
+    platform: linux/arm64
     environment:
       <<: *seed-nodes-environment
       SEED_HOST: "node3"
