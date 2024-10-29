@@ -28,6 +28,10 @@
 5. `minikube start --driver=docker` で minikube クラスターを起動
 6. `kubectl apply -f kubernetes.yml` で pods を起動
 
+#### クラスターダッシュボードの確認
+
+1. `minikube dashboard` コマンドでダッシュボードを表示
+
 #### pods を削除 / minikube クラスターの停止
 
 1. `kubectl get pods` コマンドで pods 情報を確認
