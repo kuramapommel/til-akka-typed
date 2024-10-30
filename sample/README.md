@@ -25,8 +25,10 @@
    - Apple Silicon の場合 `--platform linux/arm64` を指定
 3. `docker tag til-akka-typed:latest kuramapommel/til-akka-typed:latest` コマンドで docekr image にタグ付け
 4. `docker push kuramapommel/til-akka-typed:latest` コマンドで Docker Hub に docker image を送信
-5. `minikube start --driver=docker` で minikube クラスターを起動
-6. `kubectl apply -f kubernetes.yml` で pods を起動
+5. `minikube start --driver=docker` コマンドで minikube クラスターを起動
+6. `kubectl apply -f kubernetes.yml` コマンドで deployments, services を起動
+7. `kubectl apply -f minikube.yml` コマンドで services を起動
+8. `minikube tunnel` コマンドで localhost からアクセスできるようにトンネルを開く
 
 #### クラスターダッシュボードの確認
 
