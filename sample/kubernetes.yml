@@ -17,6 +17,19 @@ spec:
           image: kuramapommel/til-akka-typed:latest
           ports:
             - containerPort: 8080
+          env:
+            - name: SEED_HOST
+              value: "0.0.0.0"
+            - name: SEED_PORT
+              value: "2551"
+            - name: HTTP_PORT
+              value: "8080"
+            - name: SEED_NODES.0
+              value: "akka://ClusterSystem@0.0.0.0:2551"
+            - name: SEED_NODES.1
+              value: "akka://ClusterSystem@0.0.0.0:2552"
+            - name: SEED_NODES.2
+              value: "akka://ClusterSystem@0.0.0.0:2553"
 
 ---
 apiVersion: v1
