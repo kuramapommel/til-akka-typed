@@ -1,12 +1,13 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: til-akka-typed-deployment
+  name: til-akka-typed-stateful-set
 spec:
   selector:
     matchLabels:
       app: node1
-  replicas: 1
+  serviceName: "til-akka-typed-service"
+  replicas: 3
   template:
     metadata:
       labels:
@@ -18,24 +19,44 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: SEED_HOST
-              value: "0.0.0.0"
+            - name: HOST_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: SEED_PORT
               value: "2551"
             - name: HTTP_PORT
               value: "8080"
             - name: SEED_NODES.0
-              value: "akka://ClusterSystem@0.0.0.0:2551"
+              value: "akka://ClusterSystem@til-akka-typed-stateful-set-0.til-akka-typed-service:2551"
             - name: SEED_NODES.1
-              value: "akka://ClusterSystem@0.0.0.0:2552"
+              value: "akka://ClusterSystem@til-akka-typed-stateful-set-1.til-akka-typed-service:2551"
             - name: SEED_NODES.2
-              value: "akka://ClusterSystem@0.0.0.0:2553"
+              value: "akka://ClusterSystem@til-akka-typed-stateful-set-2.til-akka-typed-service:2551"
+          command: ["bash", "-c"]
+          args:
+            - export SEED_HOST=${HOST_NAME}.til-akka-typed-service;
+              java -Dconfig.resource=/persistence_docker-compose.conf -jar /app/til-akka-typed.jar;
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: til-akka-typed-service
+spec:
+  clusterIP: None
+  ports:
+    - port: 2551
+      targetPort: 2551
+      protocol: TCP
+  selector:
+    app: node1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: til-akka-typed-api-service
 spec:
   type: NodePort
   ports:
