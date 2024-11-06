@@ -88,6 +88,12 @@ spec:
           ports:
             - containerPort: 8000
           args: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-inMemory"]
+          volumeMounts:
+            - mountPath: /data
+              name: data-volume
+      volumes:
+        - name: data-volume
+          emptyDir: {}
 
 ---
 apiVersion: v1
