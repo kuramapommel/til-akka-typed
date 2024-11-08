@@ -26,3 +26,18 @@ spec:
       nodePort: 30000
   selector:
     app: dynamodb-local
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamodb-admin-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8001
+      targetPort: 8001
+      protocol: TCP
+      nodePort: 30001
+  selector:
+    app: dynamodb-admin
