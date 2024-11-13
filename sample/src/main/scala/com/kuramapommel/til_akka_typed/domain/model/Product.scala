@@ -19,8 +19,14 @@ import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
  * @param description
  *   商品説明
  */
-final case class Product(id: ProductId, name: String, imageUrl: ImageURL, price: Int, description: String)
-    extends CborSerializable:
+final case class Product(
+    id: ProductId,
+    name: String,
+    imageUrl: ImageURL,
+    price: Int,
+    description: String,
+    deleted: Boolean = false
+) extends CborSerializable:
 
   /**
    * 商品情報の編集.
@@ -48,3 +54,11 @@ final case class Product(id: ProductId, name: String, imageUrl: ImageURL, price:
       price = priceOpt.getOrElse(price),
       description = descriptionOpt.getOrElse(description)
     )
+
+  /**
+   * 商品の削除.
+   *
+   * @return
+   *   削除後の商品エンティティ
+   */
+  def delete(): Product = copy(deleted = true)

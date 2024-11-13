@@ -16,7 +16,7 @@ class ProductSpec extends AnyWordSpecLike with Matchers:
       val description = "description"
 
       val product = Product(id, name, imageUrl, price, description)
-      product must be(Product(id, name, imageUrl, price, description))
+      product must be(Product(id, name, imageUrl, price, description, false))
 
     "edit でプロダクト名, 画像URL, 価格, 詳細情報を変更できる" in:
       val id = new ProductId(UUID.randomUUID().toString())
@@ -35,3 +35,10 @@ class ProductSpec extends AnyWordSpecLike with Matchers:
       )
 
       edited must be(Product(id, name, imageUrl, price, description))
+
+    "delete でプロダクトを削除することができる" in:
+      val id = new ProductId(UUID.randomUUID().toString())
+      val product =
+        Product(id, "product1", "https://placehold.jp/123456/abcdef/150x150.png", 100, "description")
+      val deleted = product.delete()
+      (deleted.id, deleted.deleted) must be(id, true)
