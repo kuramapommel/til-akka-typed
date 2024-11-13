@@ -111,3 +111,31 @@ class ProductPersistenceActorSpec extends ScalaTestWithActorTestKit with AnyWord
           None
         )
       )
+
+    "Delete コマンドを受信し処理が成功したとき Deleted イベントが発生する" in:
+      val productId = ProductId(UUID.randomUUID().toString())
+      val actor = testKit.spawn(ProductActor: () =>
+        PersistenceId.ofUniqueId(productId.value))
+      val probe = testKit.createTestProbe[ProductEvent]()
+
+      actor ! Command.Register(
+        "product1",
+        "https://placehold.jp/123456/abcdef/150x150.png",
+        100,
+        "description",
+        probe.ref
+      )
+      probe.expectMessage(
+        ProductEvent.Registered(
+          productId,
+          "product1",
+          "https://placehold.jp/123456/abcdef/150x150.png",
+          100,
+          "description"
+        )
+      )
+
+      actor ! Command.Delete(Some(productId.value), probe.ref)
+      probe.expectMessage(
+        ProductEvent.Deleted(productId, true)
+      )

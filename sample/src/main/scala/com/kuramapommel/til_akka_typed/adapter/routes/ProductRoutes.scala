@@ -99,6 +99,19 @@ object ProductRoutes:
   given productEditedJsonFormat: RootJsonFormat[ProductEditedResponse] = jsonFormat5(ProductEditedResponse.apply)
 
   /**
+   * 商品削除 API レスポンス.
+   *
+   * @param productId
+   *   商品ID
+   * @param deleted
+   *   削除済み
+   */
+  case class ProductDeletedResponse(productId: String, deleted: Boolean)
+
+  /** 商品削除 API レスポンスエンコーダ */
+  given productDeletedJsonFormat: RootJsonFormat[ProductDeletedResponse] = jsonFormat2(ProductDeletedResponse.apply)
+
+  /**
    * API エラーレスポンス
    *
    * @param message
@@ -140,33 +153,43 @@ class ProductRoutes(productActor: ActorRef[Command])(using system: ActorSystem[?
       ,
       path(Segment): productId =>
         pathEnd:
-          post:
-            entity(as[ProductEditRequest]): product =>
-              val commandMaybe =
-                for imageUrlMaybe: Option[IronType[String, URLBase]] <- (product.imageUrl.map: imageUrl =>
-                    imageUrl.refineEither[URLBase]) match
-                    case Some(Right(imageUrl)) => Right(Some(imageUrl))
-                    case Some(Left(message))   => Left(message)
-                    case None                  => Right(None)
-                yield Command.Edit(
-                  Some(productId),
-                  _,
-                  product.name,
-                  imageUrlMaybe,
-                  product.price,
-                  product.description
-                )
+          concat(
+            post:
+              entity(as[ProductEditRequest]): product =>
+                val commandMaybe =
+                  for imageUrlMaybe: Option[IronType[String, URLBase]] <- (product.imageUrl.map: imageUrl =>
+                      imageUrl.refineEither[URLBase]) match
+                      case Some(Right(imageUrl)) => Right(Some(imageUrl))
+                      case Some(Left(message))   => Left(message)
+                      case None                  => Right(None)
+                  yield Command.Edit(
+                    Some(productId),
+                    _,
+                    product.name,
+                    imageUrlMaybe,
+                    product.price,
+                    product.description
+                  )
 
-              commandMaybe match
-                case Right(command) =>
-                  onSuccess(
-                    productActor.ask(command)
-                  ):
-                    case ProductEvent.Edited(productId, name, imageUrl, price, description) =>
-                      complete(
-                        (StatusCodes.OK, ProductEditedResponse(productId.value, name, imageUrl, price, description))
-                      )
-                    case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
-                case Left(message) =>
-                  complete((StatusCodes.BadRequest, ErrorMessageResponse(message)))
+                commandMaybe match
+                  case Right(command) =>
+                    onSuccess(
+                      productActor.ask(command)
+                    ):
+                      case ProductEvent.Edited(productId, name, imageUrl, price, description) =>
+                        complete(
+                          (StatusCodes.OK, ProductEditedResponse(productId.value, name, imageUrl, price, description))
+                        )
+                      case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
+                  case Left(message) =>
+                    complete((StatusCodes.BadRequest, ErrorMessageResponse(message)))
+            ,
+            delete:
+              onSuccess(productActor.ask(Command.Delete(Some(productId), _))):
+                case ProductEvent.Deleted(productId, deleted) =>
+                  complete(
+                    (StatusCodes.OK, ProductDeletedResponse(productId.value, deleted))
+                  )
+                case _ => complete((StatusCodes.InternalServerError, """{"message":"unkown error"}"""))
+          )
     )

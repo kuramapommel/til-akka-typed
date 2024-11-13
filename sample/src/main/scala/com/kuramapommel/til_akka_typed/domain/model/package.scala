@@ -91,6 +91,15 @@ package object model:
           description: Option[String] = None
       )
 
+      /**
+       * 商品削除.
+       * @param productId
+       *   商品ID
+       * @param deleted
+       *   削除済み
+       */
+      case Deleted(productId: ProductId, deleted: Boolean)
+
   object error:
     /** 商品エラー. */
     enum ProductError:

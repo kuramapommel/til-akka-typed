@@ -125,3 +125,24 @@ class ProductRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with
           entityAs[String] must be(
             s"""{"name":"$name","price":$price,"productId":"$productId"}"""
           )
+
+    "商品を削除することができる (DELETE /product/{productId})" in:
+      val productId = UUID.randomUUID().toString()
+      val productActor = testKit.spawn(ProductActor: () =>
+        PersistenceId.ofUniqueId(productId))
+      val routes = ProductRoutes(productActor).routes
+      val productCreateRequestEntity = Marshal(
+        ProductCreateRequest(
+          name = "test",
+          imageUrl = "https://placehold.jp/111111/777777/150x150.png",
+          price = 100,
+          description = "test"
+        )
+      ).to[MessageEntity].futureValue
+      val request = Post("/product").withEntity(productCreateRequestEntity)
+      request ~> routes ~> check:
+        val request = Delete(s"/product/$productId")
+        request ~> routes ~> check:
+          status must be(StatusCodes.OK)
+          contentType must be(ContentTypes.`application/json`)
+          entityAs[String] must be(s"""{"deleted":true,"productId":"$productId"}""")

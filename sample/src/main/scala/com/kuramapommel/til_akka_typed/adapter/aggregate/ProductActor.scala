@@ -13,6 +13,7 @@ import com.kuramapommel.til_akka_typed.domain.model.ProductIdGenerator
 import com.kuramapommel.til_akka_typed.domain.model.error.ProductError
 import com.kuramapommel.til_akka_typed.domain.model.event.ProductEvent
 import com.kuramapommel.til_akka_typed.domain.model.valueobject.*
+import com.kuramapommel.til_akka_typed.usecase.DeleteProductUseCaseImpl
 import com.kuramapommel.til_akka_typed.usecase.EditProductUseCaseImpl
 import com.kuramapommel.til_akka_typed.usecase.RegisterProductUseCaseImpl
 import scala.concurrent.ExecutionContext
@@ -46,7 +47,8 @@ object ProductActor:
             description = description.getOrElse(product.description)
           )
         )
-      case _ => ???
+      case (Some(product), ProductEvent.Deleted(productId, deleted)) => None
+      case _                                                         => ???
 
     val persitenceId = createPersistenceId()
     val idGenerator = ProductIdGenerator: () =>
@@ -64,6 +66,10 @@ object ProductActor:
           case Edit(Some(id), replyTo, nameOpt, imageUrlOpt, priceOpt, descriptionOpt) =>
             EditProductUseCaseImpl(repository)
               .execute(id, nameOpt, imageUrlOpt, priceOpt, descriptionOpt)
+              .tuple(replyTo)
+          case Delete(Some(id), replyTo) =>
+            DeleteProductUseCaseImpl(repository)
+              .execute(id)
               .tuple(replyTo)
           case _ => ???
 
@@ -152,3 +158,12 @@ enum Command:
       priceOpt: Option[Int] = None,
       descriptionOpt: Option[String] = None
   )
+
+  /**
+   * 削除.
+   * @param id
+   *   商品ID
+   * @param replyTo
+   *   返信先
+   */
+  case Delete(override val id: Option[String], replyTo: ActorRef[ProductEvent])
