@@ -53,5 +53,11 @@ curl -XPOST http://localhost:8080/product -d '{"name": "test", "imageUrl": "http
 商品編集 API
 
 ```sh
-curl -XPOST http://localhost:8080/product/:productId -d '{"name": "test-product", "imageUrl": "https://placehold.jp/777777/111111/150x150.png", "price": 200, "description": "test-description"}' -H "Content-Type:application/json"
+curl -XPOST http://localhost:8080/product/01932b10-fa7e-748b-8781-f8a1be1bd58a -d '{"name": "test-product", "imageUrl": "https://placehold.jp/777777/111111/150x150.png", "price": 200, "description": "test-description"}' -H "Content-Type:application/json"
+```
+
+商品削除 API
+
+```sh
+curl -XDELETE http://localhost:8080/product/:productId
 ```
