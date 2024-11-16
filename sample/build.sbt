@@ -1,5 +1,5 @@
-lazy val akkaHttpVersion = "10.6.3"
-lazy val akkaVersion = "2.9.6"
+lazy val akkaVersion = "2.10.0"
+lazy val akkaHttpVersion = "10.7.0"
 lazy val circeVersion = "0.14.8"
 lazy val ironVersion = "2.6.0"
 
