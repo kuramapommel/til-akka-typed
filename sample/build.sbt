@@ -1,5 +1,6 @@
 lazy val akkaVersion = "2.10.0"
 lazy val akkaHttpVersion = "10.7.0"
+lazy val akkaManagementVersion = "1.6.0"
 lazy val circeVersion = "0.14.8"
 lazy val ironVersion = "2.6.0"
 
@@ -41,8 +42,6 @@ lazy val root = (project in file(".")).settings(
   },
   name := "sample",
   libraryDependencies ++= Seq(
-    "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
-    "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
     "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
     "com.typesafe.akka" %% "akka-persistence-typed" % akkaVersion,
     "com.typesafe.akka" %% "akka-cluster-typed" % akkaVersion,
@@ -50,6 +49,9 @@ lazy val root = (project in file(".")).settings(
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
     "com.typesafe.akka" %% "akka-pki" % akkaVersion,
     "com.typesafe.akka" %% "akka-serialization-jackson" % akkaVersion,
+    "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+    "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
+    "com.lightbend.akka.management" %% "akka-management" % akkaManagementVersion,
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion,
