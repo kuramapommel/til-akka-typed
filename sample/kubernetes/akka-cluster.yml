@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: til-akka-typed
+  name: til-akka-typed
+  # namespace: til-akka-typed-1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: til-akka-typed
+  template:
+    metadata:
+      labels:
+        app: til-akka-typed
+    spec:
+      containers:
+        - name: til-akka-typed
+          image: kuramapommel/til-akka-typed:latest
+          # readinessProbe:
+          #   httpGet:
+          #     path: /ready
+          #     port: management
+          # livenessProbe:
+          #   httpGet:
+          #     path: /alive
+          #     port: management
+          ports:
+            - name: management
+              containerPort: 8558
+              protocol: TCP
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: HTTP_PORT
+              value: "8080"
+            - name: DYNAMODB_HOST
+              value: "dynamodb-local-service.default.svc.cluster.local"
+            - name: DYNAMODB_PORT
+              value: "8000"
+          resources:
+            limits:
+              memory: 1024Mi
+            requests:
+              cpu: 2
+              memory: 1024Mi
