@@ -4,6 +4,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
+import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.management.scaladsl.AkkaManagement
 import akka.util.Timeout
 import com.fasterxml.uuid.Generators
@@ -54,6 +55,8 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
     Behaviors.empty
   val system = ActorSystem[Nothing](rootBehavior, "ClusterSystem")
   // #server-bootstrapping
+
   AkkaManagement(system).start()
+  ClusterBootstrap(system).start()
 
 //#main-class
