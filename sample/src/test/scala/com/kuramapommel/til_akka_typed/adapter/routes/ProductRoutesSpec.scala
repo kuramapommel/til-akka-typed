@@ -21,6 +21,9 @@ class ProductRoutesSpec extends AnyWordSpec with Matchers with ScalaFutures with
   given timeout: Timeout =
     Timeout.create(testKit.system.settings.config.getDuration("til-akka-typed.routes.ask-timeout"))
 
+  override protected def afterAll() =
+    testKit.shutdownTestKit()
+
   "ProductRoutes" should:
     "商品を追加することができる (POST /product)" in:
       val productId = UUID.randomUUID().toString()
