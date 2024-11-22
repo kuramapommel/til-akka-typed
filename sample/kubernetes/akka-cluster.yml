@@ -1,10 +1,19 @@
+# サンプルコードを参考に namespace を定義
+# https://doc.akka.io/libraries/akka-management/current/attachments/akka-sample-cluster-kubernetes-scala.zip
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: til-akka-typed-1
+  labels:
+    name: til-akka-typed-1
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     app: til-akka-typed
   name: til-akka-typed
-  # namespace: til-akka-typed-1
+  namespace: til-akka-typed-1
 spec:
   replicas: 2
   selector:
@@ -46,3 +55,26 @@ spec:
             requests:
               cpu: 2
               memory: 1024Mi
+---
+# kubernetes-api を利用するために必要な権限設定
+# https://doc.akka.io/libraries/akka-management/current/kubernetes-deployment/forming-a-cluster.html#role-based-access-control
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pod-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: read-pods
+subjects:
+  - kind: User
+    name: system:serviceaccount:til-akka-typed-1:default
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
