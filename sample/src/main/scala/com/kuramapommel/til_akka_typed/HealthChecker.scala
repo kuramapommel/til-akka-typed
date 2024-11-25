@@ -1,6 +1,6 @@
 package com.kuramapommel.til_akka_typed
 
-import akka.actor.typed.ActorSystem
+import akka.actor.ActorSystem
 import scala.concurrent.Future
 
 /**
@@ -10,7 +10,7 @@ import scala.concurrent.Future
  * @param system
  *     アクターシステム
  */
-final case class HealthChecker(system: ActorSystem[?]) extends (() => Future[Boolean]):
+class HealthChecker(system: ActorSystem) extends (() => Future[Boolean]):
 
   /** 稼働中 */
   override def apply(): Future[Boolean] =
