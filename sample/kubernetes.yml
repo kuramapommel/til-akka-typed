@@ -5,16 +5,16 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: node1
+      app: til-akka-typed
   serviceName: "til-akka-typed-service"
   replicas: 3
   template:
     metadata:
       labels:
-        app: node1
+        app: til-akka-typed
     spec:
       containers:
-        - name: node1
+        - name: til-akka-typed
           image: kuramapommel/til-akka-typed:latest
           ports:
             - containerPort: 8080
@@ -28,11 +28,11 @@ spec:
             - name: HTTP_PORT
               value: "8080"
             - name: SEED_NODES.0
-              value: "akka://ClusterSystem@til-akka-typed-stateful-set-0.til-akka-typed-service:2551"
+              value: "akka://til-akka-typed@til-akka-typed-stateful-set-0.til-akka-typed-service:2551"
             - name: SEED_NODES.1
-              value: "akka://ClusterSystem@til-akka-typed-stateful-set-1.til-akka-typed-service:2551"
+              value: "akka://til-akka-typed@til-akka-typed-stateful-set-1.til-akka-typed-service:2551"
             - name: SEED_NODES.2
-              value: "akka://ClusterSystem@til-akka-typed-stateful-set-2.til-akka-typed-service:2551"
+              value: "akka://til-akka-typed@til-akka-typed-stateful-set-2.til-akka-typed-service:2551"
             - name: DYNAMODB_HOST
               value: "dynamodb-local-service.default.svc.cluster.local"
             - name: DYNAMODB_PORT
@@ -54,7 +54,7 @@ spec:
       targetPort: 2551
       protocol: TCP
   selector:
-    app: node1
+    app: til-akka-typed
 
 ---
 apiVersion: v1
@@ -69,7 +69,7 @@ spec:
       protocol: TCP
       nodePort: 30080
   selector:
-    app: node1
+    app: til-akka-typed
 
 ---
 apiVersion: apps/v1

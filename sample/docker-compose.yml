@@ -3,9 +3,9 @@ version: "3.8"
 # アンカーを用いてすべてのコンテナに共通の環境変数をまとめて定義する
 x-environment: &seed-nodes-environment
   SEED_PORT: 2551
-  SEED_NODES.0: "akka://ClusterSystem@node1:2551"
-  SEED_NODES.1: "akka://ClusterSystem@node2:2551"
-  SEED_NODES.2: "akka://ClusterSystem@node3:2551"
+  SEED_NODES.0: "akka://til-akka-typed@node1:2551"
+  SEED_NODES.1: "akka://til-akka-typed@node2:2551"
+  SEED_NODES.2: "akka://til-akka-typed@node3:2551"
 
 services:
   node1:

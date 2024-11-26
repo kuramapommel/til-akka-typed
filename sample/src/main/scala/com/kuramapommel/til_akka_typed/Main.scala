@@ -53,7 +53,7 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
     startHttpServer(routes.routes)
 
     Behaviors.empty
-  val system = ActorSystem[Nothing](rootBehavior, "ClusterSystem")
+  val system = ActorSystem[Nothing](rootBehavior, "til-akka-typed")
   // #server-bootstrapping
 
   AkkaManagement(system).start()

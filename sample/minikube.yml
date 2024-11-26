@@ -10,7 +10,7 @@ spec:
       protocol: TCP
       nodePort: 31080
   selector:
-    app: node1
+    app: til-akka-typed
 
 ---
 apiVersion: v1
