@@ -56,7 +56,9 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
   val system = ActorSystem[Nothing](rootBehavior, "til-akka-typed")
   // #server-bootstrapping
 
-  AkkaManagement(system).start()
-  ClusterBootstrap(system).start()
+  // akka.cluster.seed-nodes にノード情報が設定されているときは akka management を使わない
+  if system.settings.config.getStringList("akka.cluster.seed-nodes").isEmpty() then
+    AkkaManagement(system).start()
+    ClusterBootstrap(system).start()
 
 //#main-class
