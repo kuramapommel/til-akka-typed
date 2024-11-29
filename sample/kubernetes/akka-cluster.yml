@@ -43,6 +43,8 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
+            - name: REQUIRED_CONTACT_POINT_NR
+              value: "2"
             - name: HTTP_PORT
               value: "8080"
             - name: DYNAMODB_HOST
