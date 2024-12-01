@@ -1,5 +1,6 @@
 package com.kuramapommel.til_akka_typed
 
+import akka.actor.ActorSystem as ClassicSystem
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
@@ -36,10 +37,12 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
 @main def main: Unit =
   // #server-bootstrapping
   val rootBehavior = Behaviors.setup[Nothing]: context =>
+    import akka.actor.typed.scaladsl.adapter.*
     import context.system
     given ec: ExecutionContext = context.system.executionContext
     given timeout: Timeout =
       Timeout.create(context.system.settings.config.getDuration("til-akka-typed.routes.ask-timeout"))
+    given classicSystem: ClassicSystem = context.system.toClassic
 
     val productActor =
       context.spawn(
@@ -52,13 +55,13 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
     val routes = new ProductRoutes(productActor)
     startHttpServer(routes.routes)
 
+    // akka.cluster.seed-nodes にノード情報が設定されているときは akka management を使わない
+    if context.system.settings.config.getStringList("akka.cluster.seed-nodes").isEmpty() then
+      AkkaManagement.get(classicSystem).start()
+      ClusterBootstrap.get(classicSystem).start()
+
     Behaviors.empty
   val system = ActorSystem[Nothing](rootBehavior, "til-akka-typed")
   // #server-bootstrapping
-
-  // akka.cluster.seed-nodes にノード情報が設定されているときは akka management を使わない
-  if system.settings.config.getStringList("akka.cluster.seed-nodes").isEmpty() then
-    AkkaManagement(system).start()
-    ClusterBootstrap(system).start()
 
 //#main-class
