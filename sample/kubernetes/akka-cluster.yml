@@ -48,7 +48,7 @@ spec:
             - name: HTTP_PORT
               value: "8080"
             - name: DYNAMODB_HOST
-              value: "dynamodb-local-service.default.svc.cluster.local"
+              value: "dynamodb-local-service.til-akka-typed-1"
             - name: DYNAMODB_PORT
               value: "8000"
           resources:
@@ -148,7 +148,7 @@ spec:
         - name: AWS_REGION
           value: "us-east-1"
         - name: LOCALSTACK_HOST
-          value: "dynamodb-local-service.default.svc.cluster.local"
+          value: "dynamodb-local-service.til-akka-typed-1"
         - name: DDB_PORT
           value: "8000"
       volumeMounts:
