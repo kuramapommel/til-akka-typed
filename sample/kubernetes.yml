@@ -166,7 +166,7 @@ spec:
     spec:
       containers:
         - name: dynamodb-admin
-          image: aaronshaf/dynamodb-admin:latest
+          image: aaronshaf/dynamodb-admin:4.6.1
           ports:
             - containerPort: 8001
           env:
