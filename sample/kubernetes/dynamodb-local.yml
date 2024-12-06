@@ -77,3 +77,43 @@ spec:
       hostPath:
         path: "/scripts/dynamodb"
         type: Directory
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dynamodb-admin-deployment
+  namespace: til-akka-typed-1
+spec:
+  selector:
+    matchLabels:
+      app: dynamodb-admin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: dynamodb-admin
+    spec:
+      containers:
+        - name: dynamodb-admin
+          image: aaronshaf/dynamodb-admin:4.6.1
+          ports:
+            - containerPort: 8001
+          env:
+            - name: DYNAMO_ENDPOINT
+              value: "dynamodb-local-service.til-akka-typed-1:8000"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamodb-admin-service
+  namespace: til-akka-typed-1
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8001
+      targetPort: 8001
+      protocol: TCP
+  selector:
+    app: dynamodb-admin
