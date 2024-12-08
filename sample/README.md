@@ -6,12 +6,14 @@
 
 1. `sbt` コマンドで sbt を起動
 2. `set javaOptions += "-DSEED_NODES.0=akka://til-akka-typed@0.0.0.0:2551"` コマンドで環境変数を設定
-3. `run` コマンドでサーバを起動
+3. `set javaOptions += "-DSEED_HOST=0.0.0.0"` コマンドで環境変数を設定
+4. `set javaOptions += "-DSEED_PORT=2551"` コマンドで環境変数を設定
+5. `run` コマンドでサーバを起動
 
 ### java -jar を使用
 
 1. `sbt assembly` コマンドで FAT jar ファイルを作成
-2. `java -DSEED_NODES.0="akka://til-akka-typed@0.0.0.0:2551" -jar ./target/scala-3.4.3/til-akka-typed.jar` コマンドでサーバを起動
+2. `java -DSEED_NODES.0="akka://til-akka-typed@0.0.0.0:2551" -DSEED_HOST="0.0.0.0" -DSEED_PORT="2551" -jar ./target/scala-3.4.3/til-akka-typed.jar` コマンドでサーバを起動
 
 ### docker を使用
 
