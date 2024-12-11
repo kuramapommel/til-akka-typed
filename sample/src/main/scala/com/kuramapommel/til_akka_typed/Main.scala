@@ -55,8 +55,10 @@ def startHttpServer(routes: Route)(using system: ActorSystem[?]): Unit =
     val routes = new ProductRoutes(productActor)
     startHttpServer(routes.routes)
 
-    // akka.cluster.seed-nodes にノード情報が設定されているときは akka management を使わない
-    if context.system.settings.config.getStringList("akka.cluster.seed-nodes").isEmpty() then
+    // akka.management が設定されているときのみ akka management を使用する
+    if context.system.settings.config
+        .hasPath("til-akka-typed.use-akka-management")
+    then
       AkkaManagement.get(classicSystem).start()
       ClusterBootstrap.get(classicSystem).start()
 

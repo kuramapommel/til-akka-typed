@@ -25,7 +25,7 @@
 ### minikube を使用
 
 1. `sbt assembly` コマンドで FAT jar ファイルを作成
-2. `docker build --platform linux/arm64 -t til-akka-typed .` コマンドで docker image を作成
+2. `docker build --platform linux/arm64 -t til-akka-typed --build-arg CONF=akka-management.conf .` コマンドで docker image を作成
    - Apple Silicon の場合 `--platform linux/arm64` を指定
 3. `docker tag til-akka-typed:latest kuramapommel/til-akka-typed:latest` コマンドで docekr image にタグ付け
 4. `docker push kuramapommel/til-akka-typed:latest` コマンドで Docker Hub に docker image を送信
