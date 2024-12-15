@@ -50,6 +50,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            CONF=akka-management.conf
 
     #   - name: Generate artifact attestation
     #     uses: actions/attest-build-provenance@v1
